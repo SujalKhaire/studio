@@ -4,7 +4,6 @@
  * @fileOverview A flow to handle creator verification applications.
  *
  * - processApplication - Saves a creator's application to Firestore for manual review.
- * - ProcessApplicationInputSchema - The Zod schema for the application input.
  */
 
 import { z } from 'zod';
@@ -12,22 +11,22 @@ import { ai } from '@/ai/genkit';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-export const ProcessApplicationInputSchema = z.object({
+const ProcessApplicationInputSchema = z.object({
   userId: z.string().describe('The Firebase Auth UID of the user.'),
   fullName: z.string().min(2, 'Full name is required.'),
   email: z.string().email('A valid email is required.'),
   socialLinks: z.string().min(3, 'Social link is required.'),
   verificationCode: z.string().length(6, 'Verification code must be 6 characters.'),
 });
-export type ProcessApplicationInput = z.infer<typeof ProcessApplicationInputSchema>;
+type ProcessApplicationInput = z.infer<typeof ProcessApplicationInputSchema>;
 
-export const ProcessApplicationOutputSchema = z.object({
+const ProcessApplicationOutputSchema = z.object({
   success: z.boolean(),
   message: z.string(),
 });
-export type ProcessApplicationOutput = z.infer<typeof ProcessApplicationOutputSchema>;
+type ProcessApplicationOutput = z.infer<typeof ProcessApplicationOutputSchema>;
 
-export const processApplicationFlow = ai.defineFlow(
+const processApplicationFlow = ai.defineFlow(
   {
     name: 'processApplicationFlow',
     inputSchema: ProcessApplicationInputSchema,

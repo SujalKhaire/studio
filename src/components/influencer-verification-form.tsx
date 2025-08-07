@@ -20,12 +20,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Bot, KeyRound, Loader2 } from "lucide-react";
-import { processApplication, ProcessApplicationInputSchema } from "@/ai/flows/process-application";
-import { useEffect, useState, useMemo } from "react";
+import { processApplication } from "@/ai/flows/process-application";
+import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 
-const formSchema = ProcessApplicationInputSchema.omit({ userId: true }).extend({
+const formSchema = z.object({
+  fullName: z.string().min(2, 'Full name is required.'),
+  email: z.string().email('A valid email is required.'),
+  socialLinks: z.string().min(3, 'Social link is required.'),
+  verificationCode: z.string().length(6, 'Verification code must be 6 characters.'),
   confirm: z.boolean().refine((val) => val === true, {
     message: "You must confirm you have sent the code.",
   }),

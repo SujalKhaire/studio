@@ -8,11 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, CreditCard, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
 import { createRazorpayOrder } from '@/ai/flows/create-razorpay-order';
 import Script from 'next/script';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useAuth } from '@/hooks/use-auth';
 
 interface Itinerary {
   id: string;
@@ -27,11 +27,13 @@ declare global {
 }
 
 function PayPageContent() {
-  const { user } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
+  
+  // Get item_id and uid from URL search params
   const itemId = searchParams.get('item_id');
+  const userId = searchParams.get('uid'); // User ID passed from the mobile app
 
   const [itinerary, setItinerary] = React.useState<Itinerary | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -44,6 +46,11 @@ function PayPageContent() {
           setError('No item ID provided.');
           setLoading(false);
           return;
+        }
+        if (!userId) {
+            setError('No user ID provided.');
+            setLoading(false);
+            return;
         }
         
         try {
@@ -68,13 +75,13 @@ function PayPageContent() {
         }
     }
     fetchItinerary();
-  }, [itemId]);
+  }, [itemId, userId]);
 
   const handlePaymentSuccess = (paymentResponse: any) => {
-    if (!itinerary) return;
+    if (!itinerary || !userId) return;
 
     // Redirect to the custom Android app URL scheme.
-    const redirectUrl = `yourapp://payment_success?item_id=${itinerary.id}&payment_id=${paymentResponse.razorpay_payment_id}`;
+    const redirectUrl = `yourapp://payment_success?uid=${userId}&item_id=${itinerary.id}&payment_id=${paymentResponse.razorpay_payment_id}`;
     window.location.href = redirectUrl;
 
     // As a fallback, you can also redirect to a web success page after a delay
@@ -86,8 +93,8 @@ function PayPageContent() {
 
 
   const handlePayment = async () => {
-    if (!itinerary || !user) {
-        toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to pay.'})
+    if (!itinerary || !userId) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Missing itinerary or user information.'})
         return;
     };
     setProcessing(true);
@@ -113,12 +120,13 @@ function PayPageContent() {
                 handlePaymentSuccess(response);
             },
             prefill: {
-                name: user.displayName || 'Ziravo User',
-                email: user.email,
+                // You can prefill user details if you have them, otherwise leave them blank
+                name: 'Ziravo User',
+                email: '',
             },
             notes: {
                 itineraryId: itinerary.id,
-                userId: user.uid,
+                userId: userId,
             },
             theme: {
                 color: "#2563eb"
@@ -133,8 +141,6 @@ function PayPageContent() {
                 title: 'Payment Failed',
                 description: `Code: ${response.error.code}. ${response.error.description}`,
             });
-            // Optionally redirect to a failure page
-            // router.push('/payment-failed');
             setProcessing(false);
         });
 
@@ -186,7 +192,7 @@ function PayPageContent() {
               <div className="text-4xl font-bold font-headline text-primary">
                 ₹{itinerary.price.toFixed(2)}
               </div>
-              <Button onClick={handlePayment} className="w-full" size="lg" disabled={processing || !user}>
+              <Button onClick={handlePayment} className="w-full" size="lg" disabled={processing || !userId}>
                 {processing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <CreditCard className="mr-2 h-5 w-5" />}
                 {processing ? "Processing..." : "Pay with Razorpay"}
               </Button>

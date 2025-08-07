@@ -14,7 +14,7 @@ import InfluencerVerificationForm from '@/components/influencer-verification-for
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, doc, DocumentData, Timestamp, orderBy } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import UploadItineraryForm from '@/components/upload-itinerary-form';
+import { UploadItineraryForm } from '@/components/upload-itinerary-form';
 import Link from 'next/link';
 
 type VerificationStatus = 'not_submitted' | 'pending' | 'approved' | 'rejected';

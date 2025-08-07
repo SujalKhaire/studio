@@ -31,7 +31,7 @@ const formSchema = z.object({
   title: z.string().min(5, {
     message: 'Title must be at least 5 characters.',
   }),
-  publicLink: z.string().url({ message: 'Please enter a valid URL.' }),
+  itineraryLink: z.string().url({ message: 'Please enter a valid URL.' }),
   price: z.coerce.number().positive({ message: 'Price must be a positive number.' }),
 });
 
@@ -40,10 +40,9 @@ type UploadItineraryFormValues = z.infer<typeof formSchema>;
 interface UploadItineraryFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUploadSuccess?: () => void;
 }
 
-export function UploadItineraryForm({ open, onOpenChange, onUploadSuccess }: UploadItineraryFormProps) {
+export function UploadItineraryForm({ open, onOpenChange }: UploadItineraryFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -52,7 +51,7 @@ export function UploadItineraryForm({ open, onOpenChange, onUploadSuccess }: Upl
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
-      publicLink: '',
+      itineraryLink: '',
       price: 0,
     },
   });
@@ -69,8 +68,10 @@ export function UploadItineraryForm({ open, onOpenChange, onUploadSuccess }: Upl
     
     setIsSubmitting(true);
     const result = await uploadItinerary({
-      ...data,
-      creatorId: user.uid,
+      title: data.title,
+      itineraryLink: data.itineraryLink,
+      price: data.price,
+      userId: user.uid,
     });
     setIsSubmitting(false);
 
@@ -81,7 +82,6 @@ export function UploadItineraryForm({ open, onOpenChange, onUploadSuccess }: Upl
       });
       form.reset();
       onOpenChange(false);
-      onUploadSuccess?.();
     } else {
       toast({
         variant: 'destructive',
@@ -121,7 +121,7 @@ export function UploadItineraryForm({ open, onOpenChange, onUploadSuccess }: Upl
               />
               <FormField
                 control={form.control}
-                name="publicLink"
+                name="itineraryLink"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Itinerary Link</FormLabel>

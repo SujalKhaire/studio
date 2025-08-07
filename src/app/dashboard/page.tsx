@@ -273,6 +273,22 @@ function CreatorDashboard() {
       },
     };
 
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+        }).format(amount);
+    }
+    
+    const formatCurrencyNoFractions = (amount: number) => {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    }
+
     const userProfileImageUrl = user?.photoURL || `https://api.dicebear.com/8.x/lorelei/svg?seed=${user?.email}`;
 
   if (loading) {
@@ -326,11 +342,11 @@ function CreatorDashboard() {
                 <div className="rounded-lg bg-primary/10 p-4 text-center">
                     <p className="text-sm font-medium text-primary">Wallet Balance (Withdrawable)</p>
                     <p className="text-3xl font-bold text-primary">
-                      {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(metrics.walletBalance)}
+                      {formatCurrency(metrics.walletBalance)}
                     </p>
                 </div>
                  <div className="text-sm text-muted-foreground text-center">
-                    Lifetime Earnings: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(metrics.lifetimeEarnings)}
+                    Lifetime Earnings: {formatCurrency(metrics.lifetimeEarnings)}
                 </div>
                 <div className="space-y-2">
                     <h4 className="font-semibold">Withdrawal History</h4>
@@ -347,7 +363,7 @@ function CreatorDashboard() {
                                 <TableRow key={payout.id}>
                                     <TableCell>{payout.requestedAt.toDate().toLocaleDateString()}</TableCell>
                                     <TableCell><PayoutStatusBadge status={payout.status} /></TableCell>
-                                    <TableCell className="text-right font-medium">₹{payout.amount.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(payout.amount)}</TableCell>
                                 </TableRow>
                             )) : (
                                 <TableRow>
@@ -397,7 +413,7 @@ function CreatorDashboard() {
                         <Wallet className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">₹{metrics.lifetimeEarnings.toFixed(2)}</div>
+                        <div className="text-2xl font-bold">{formatCurrency(metrics.lifetimeEarnings)}</div>
                          <p className="text-xs text-muted-foreground">All-time earnings</p>
                     </CardContent>
                 </Card>
@@ -407,7 +423,7 @@ function CreatorDashboard() {
                         <LineChart className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">₹{metrics.monthlyEarnings.toFixed(2)}</div>
+                        <div className="text-2xl font-bold">{formatCurrency(metrics.monthlyEarnings)}</div>
                          <p className="text-xs text-muted-foreground">Earnings this calendar month</p>
                     </CardContent>
                 </Card>
@@ -439,8 +455,8 @@ function CreatorDashboard() {
                       <TableCell className="font-medium">{item.title}</TableCell>
                       <TableCell><ItineraryStatusBadge status={item.status} /></TableCell>
                       <TableCell className="text-center">{item.sales || 0}</TableCell>
-                      <TableCell className="text-right">₹{(item.price || 0).toFixed(2)}</TableCell>
-                      <TableCell className="text-right">₹{(item.earnings || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(item.price || 0)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(item.earnings || 0)}</TableCell>
                     </TableRow>
                   )) : (
                     <TableRow>

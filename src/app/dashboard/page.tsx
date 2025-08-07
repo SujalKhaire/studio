@@ -274,19 +274,11 @@ function CreatorDashboard() {
     };
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-        }).format(amount);
+        return `₹${amount.toFixed(2)}`;
     }
     
     const formatCurrencyNoFractions = (amount: number) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(amount);
+        return `₹${amount.toFixed(0)}`;
     }
 
     const userProfileImageUrl = user?.photoURL || `https://api.dicebear.com/8.x/lorelei/svg?seed=${user?.email}`;

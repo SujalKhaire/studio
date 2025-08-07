@@ -6,16 +6,20 @@ import {
   collection,
   doc,
   runTransaction,
+  serverTimestamp,
 } from 'firebase/firestore';
 import {db} from '@/lib/firebase';
 import {ai} from '@/ai/genkit';
 
 const UploadItineraryInputSchema = z.object({
-  title: z.string(),
-  publicLink: z.string().url(),
-  price: z.number().positive(),
-  creatorId: z.string(),
+  title: z.string().min(5, {
+    message: 'Title must be at least 5 characters.',
+  }),
+  itineraryLink: z.string().url({ message: 'Please enter a valid URL.' }),
+  price: z.coerce.number().positive({ message: 'Price must be a positive number.' }),
+  userId: z.string(),
 });
+
 
 const uploadItineraryFlow = ai.defineFlow(
   {
@@ -49,12 +53,12 @@ const uploadItineraryFlow = ai.defineFlow(
       const itinerariesCollection = collection(db, 'itineraries');
       await addDoc(itinerariesCollection, {
         title: input.title,
-        publicLink: input.publicLink,
+        publicLink: input.itineraryLink,
         price: input.price,
-        userId: input.creatorId, // Changed from creatorId to userId
-        id: newId, // Changed from itineraryId to id
+        userId: input.userId,
+        id: newId,
         status: 'Draft',
-        createdAt: new Date().toISOString(),
+        createdAt: serverTimestamp(),
         sales: 0,
         earnings: 0,
       });

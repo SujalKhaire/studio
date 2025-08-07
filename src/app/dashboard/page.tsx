@@ -14,7 +14,7 @@ import InfluencerVerificationForm from '@/components/influencer-verification-for
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, doc, DocumentData, Timestamp, orderBy } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { UploadItineraryForm } from '@/components/upload-itinerary-form';
+import UploadItineraryForm from '@/components/upload-itinerary-form';
 import Link from 'next/link';
 
 type VerificationStatus = 'not_submitted' | 'pending' | 'approved' | 'rejected';
@@ -27,7 +27,7 @@ export interface Itinerary {
   sales: number;
   price: number;
   earnings: number;
-  createdAt: Timestamp;
+  createdAt: Timestamp | string;
 }
 
 interface Payout {
@@ -263,7 +263,9 @@ function CreatorDashboard() {
         
         return itineraries.reduce((sum, item) => {
             if (item.createdAt) {
-              const itemDate = item.createdAt.toDate();
+              const itemDate = typeof item.createdAt === 'string' 
+                ? new Date(item.createdAt) 
+                : item.createdAt.toDate();
               if (itemDate >= startOfMonth && itemDate <= now) {
                 return sum + (item.earnings || 0);
               }
@@ -289,7 +291,7 @@ function CreatorDashboard() {
 
   return (
     <>
-    <UploadItineraryForm open={isUploadOpen} onOpenChange={setIsUploadOpen} onUploadSuccess={() => setIsUploadOpen(false)} />
+    <UploadItineraryForm open={isUploadOpen} onOpenChange={setIsUploadOpen} />
     <div className="flex flex-1 flex-col gap-8 bg-muted/20 p-4 sm:p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-3xl font-headline font-bold">Creator Dashboard</h1>

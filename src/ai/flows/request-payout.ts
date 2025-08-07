@@ -4,6 +4,7 @@ import {z} from 'zod';
 import {addDoc, collection, serverTimestamp} from 'firebase/firestore';
 import {db} from '@/lib/firebase';
 import {ai} from '@/ai/genkit';
+import { GenkitError } from 'genkit';
 
 const requestPayoutFlow = ai.defineFlow(
   {
@@ -38,10 +39,10 @@ const requestPayoutFlow = ai.defineFlow(
       console.error('Error submitting payout request:', error);
       const errorMessage =
         error instanceof Error ? error.message : 'An unknown error occurred.';
-      return {
-        success: false,
+      throw new GenkitError({
+        status: 'INTERNAL',
         message: `Failed to submit payout request: ${errorMessage}`,
-      };
+      });
     }
   }
 );

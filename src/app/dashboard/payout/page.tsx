@@ -60,32 +60,41 @@ export default function PayoutPage() {
     }
     
     setIsSubmitting(true);
-    const result = await requestPayout({
-      ...data,
-      userId: user.uid,
-      userName: user.displayName,
-    });
-    setIsSubmitting(false);
+    try {
+      const result = await requestPayout({
+        ...data,
+        userId: user.uid,
+        userName: user.displayName,
+      });
 
-    if (result.success) {
-      toast({
-        title: 'Success',
-        description: 'Your payout request has been submitted.',
-      });
-      router.push('/dashboard');
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.message,
-      });
+      if (result.success) {
+        toast({
+          title: 'Success',
+          description: 'Your payout request has been submitted.',
+        });
+        router.push('/dashboard');
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: result.message,
+        });
+      }
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: error.message || 'An unknown error occurred.',
+        });
+    } finally {
+        setIsSubmitting(false);
     }
   }
 
   if (authLoading || !user) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <p>Loading...</p>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }

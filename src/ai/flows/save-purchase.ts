@@ -80,7 +80,7 @@ const savePurchaseFlow = ai.defineFlow(
 );
 
 export async function savePurchase(
-  input: z.infer<typeof SavePurchaseInputSchema>
-): Promise<z.infer<typeof SavePurchaseOutputSchema>> {
+  input: SavePurchaseInput
+): Promise<SavePurchaseOutput> {
   return await savePurchaseFlow(input);
 }

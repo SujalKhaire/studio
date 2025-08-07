@@ -11,19 +11,14 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { createRazorpayOrder } from '@/ai/flows/create-razorpay-order';
 import Script from 'next/script';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface Itinerary {
-  id: number;
-  name: string;
+  id: string;
+  title: string;
   price: number;
 }
-
-const itineraries: Itinerary[] = [
-  { "id": 123, "name": "Manali Trip", "price": 5000 },
-  { "id": 124, "name": "Goa Trip", "price": 7000 },
-  { "id": 1, "name": "7-Day Bali Escape", "price": 1599 },
-  { "id": 2, "name": "Kyoto Cherry Blossom Tour", "price": 2499 },
-];
 
 declare global {
     interface Window {
@@ -44,21 +39,35 @@ function PayPageContent() {
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    setLoading(true);
-    if (!itemId) {
-      setError('No item ID provided.');
-      setLoading(false);
-      return;
+    async function fetchItinerary() {
+        if (!itemId) {
+          setError('No item ID provided.');
+          setLoading(false);
+          return;
+        }
+        
+        try {
+            const itineraryRef = doc(db, 'itineraries', itemId);
+            const docSnap = await getDoc(itineraryRef);
+    
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              setItinerary({
+                id: docSnap.id,
+                title: data.title,
+                price: data.price,
+              });
+            } else {
+              setError('Itinerary not found.');
+            }
+        } catch (err) {
+            console.error("Error fetching itinerary:", err);
+            setError('Failed to load itinerary details.');
+        } finally {
+            setLoading(false);
+        }
     }
-
-    const foundItinerary = itineraries.find(item => item.id.toString() === itemId);
-
-    if (foundItinerary) {
-      setItinerary(foundItinerary);
-    } else {
-      setError('Itinerary not found.');
-    }
-    setLoading(false);
+    fetchItinerary();
   }, [itemId]);
 
   const handlePaymentSuccess = (paymentResponse: any) => {
@@ -98,7 +107,7 @@ function PayPageContent() {
             amount: order.amount,
             currency: order.currency,
             name: "Ziravo",
-            description: `Payment for ${itinerary.name}`,
+            description: `Payment for ${itinerary.title}`,
             order_id: order.id,
             handler: (response: any) => {
                 handlePaymentSuccess(response);
@@ -171,7 +180,7 @@ function PayPageContent() {
           {!loading && !error && itinerary && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold">{itinerary.name}</h3>
+                <h3 className="text-lg font-semibold">{itinerary.title}</h3>
                 <p className="text-sm text-muted-foreground">Digital Itinerary Guide</p>
               </div>
               <div className="text-4xl font-bold font-headline text-primary">

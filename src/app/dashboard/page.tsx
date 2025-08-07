@@ -325,10 +325,12 @@ function CreatorDashboard() {
             <CardContent className="space-y-4">
                 <div className="rounded-lg bg-primary/10 p-4 text-center">
                     <p className="text-sm font-medium text-primary">Wallet Balance (Withdrawable)</p>
-                    <p className="text-3xl font-bold text-primary">₹{metrics.walletBalance.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                    <p className="text-3xl font-bold text-primary">
+                      {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(metrics.walletBalance)}
+                    </p>
                 </div>
                  <div className="text-sm text-muted-foreground text-center">
-                    Lifetime Earnings: ₹{metrics.lifetimeEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    Lifetime Earnings: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(metrics.lifetimeEarnings)}
                 </div>
                 <div className="space-y-2">
                     <h4 className="font-semibold">Withdrawal History</h4>

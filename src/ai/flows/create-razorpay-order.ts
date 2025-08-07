@@ -24,7 +24,7 @@ const CreateRazorpayOrderOutputSchema = z.object({
   offer_id: z.string().nullable(),
   status: z.string(),
   attempts: z.number(),
-  notes: z.record(z.string()),
+  notes: z.record(z.string()).or(z.array(z.unknown())),
   created_at: z.number(),
 });
 

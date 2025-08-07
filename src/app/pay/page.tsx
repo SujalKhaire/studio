@@ -2,15 +2,16 @@
 
 import * as React from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, runTransaction, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, CreditCard } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Itinerary {
-  id: string;
+  id: string; // Document ID
   title: string;
   price: number;
   creatorId: string;
@@ -19,10 +20,12 @@ interface Itinerary {
 function PayPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { toast } = useToast();
   const itemId = searchParams.get('item_id');
 
   const [itinerary, setItinerary] = React.useState<Itinerary | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [processing, setProcessing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -41,9 +44,10 @@ function PayPageContent() {
         if (querySnapshot.empty) {
           setError('Itinerary not found.');
         } else {
-          const docData = querySnapshot.docs[0].data();
+          const doc = querySnapshot.docs[0];
+          const docData = doc.data();
           setItinerary({
-            id: querySnapshot.docs[0].id,
+            id: doc.id,
             title: docData.title,
             price: docData.price,
             creatorId: docData.userId,
@@ -60,9 +64,39 @@ function PayPageContent() {
     fetchItinerary();
   }, [itemId]);
 
-  const handlePayment = () => {
-    // This is a simulation. In a real app, you would integrate a payment gateway.
-    router.push('/payment-success');
+  const handlePayment = async () => {
+    if (!itinerary) return;
+    setProcessing(true);
+
+    try {
+      const itineraryRef = doc(db, 'itineraries', itinerary.id);
+      
+      await runTransaction(db, async (transaction) => {
+        const itineraryDoc = await transaction.get(itineraryRef);
+        if (!itineraryDoc.exists()) {
+          throw "Document does not exist!";
+        }
+
+        const newSales = (itineraryDoc.data().sales || 0) + 1;
+        const newEarnings = (itineraryDoc.data().earnings || 0) + itineraryDoc.data().price;
+        
+        transaction.update(itineraryRef, { 
+          sales: newSales,
+          earnings: newEarnings 
+        });
+      });
+
+      router.push('/payment-success');
+    } catch (e) {
+      console.error("Transaction failed: ", e);
+      toast({
+        variant: 'destructive',
+        title: "Payment Failed",
+        description: "Could not process your payment. Please try again."
+      });
+    } finally {
+        setProcessing(false);
+    }
   };
 
   return (
@@ -95,9 +129,13 @@ function PayPageContent() {
               <div className="text-4xl font-bold font-headline text-primary">
                 ₹{itinerary.price.toFixed(2)}
               </div>
-              <Button onClick={handlePayment} className="w-full" size="lg">
-                <CreditCard className="mr-2 h-5 w-5" />
-                Pay Now (Simulated)
+              <Button onClick={handlePayment} className="w-full" size="lg" disabled={processing}>
+                {processing ? "Processing..." : (
+                  <>
+                    <CreditCard className="mr-2 h-5 w-5" />
+                    Pay Now (Simulated)
+                  </>
+                )}
               </Button>
             </div>
           )}

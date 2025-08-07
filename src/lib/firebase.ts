@@ -6,7 +6,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyD_6-b9dZyiuwxxSV3nV1OnmP6fzq5nHxg",
   authDomain: "ziravoweb.firebaseapp.com",
   projectId: "ziravoweb",
-  storageBucket: "ziravoweb.firebasestorage.app",
+  storageBucket: "ziravoweb.appspot.com",
   messagingSenderId: "427271506002",
   appId: "1:427271506002:web:f8b471d8a4e10fb4acf78b",
 };

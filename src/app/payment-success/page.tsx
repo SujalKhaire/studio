@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle } from 'lucide-react';
+import { CircleCheckBig } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PaymentSuccessPage() {
@@ -9,7 +9,7 @@ export default function PaymentSuccessPage() {
       <Card className="w-full max-w-lg text-center">
         <CardHeader>
           <div className="mx-auto bg-green-100 dark:bg-green-900 rounded-full p-4 w-fit">
-            <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
+            <CircleCheckBig className="h-12 w-12 text-green-600 dark:text-green-400" />
           </div>
           <CardTitle className="font-headline text-3xl mt-4">Payment Successful!</CardTitle>
           <CardDescription>

@@ -83,7 +83,7 @@ export default function Home() {
           </motion.h1>
           
           <motion.p variants={fadeIn} className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
-            Join Wanderlust Monetizer, the exclusive marketplace where travel creators sell unique itineraries to a global audience of adventurers.
+            Join Ziravo, the exclusive marketplace where travel creators sell unique itineraries to a global audience of adventurers.
           </motion.p>
           
           <motion.div variants={fadeIn} className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
@@ -105,7 +105,7 @@ export default function Home() {
             <div className="relative rounded-2xl overflow-hidden border border-border/20 shadow-2xl shadow-primary/10">
               <Image
                 src="https://placehold.co/1280x720.png"
-                alt="Traveler using app"
+                alt="Traveler using Ziravo app"
                 data-ai-hint="travel planning map"
                 width={1280}
                 height={720}
@@ -118,7 +118,7 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* About App Section */}
+      {/* About Ziravo App Section */}
       <section className="w-full py-20 md:py-28 bg-gradient-to-b from-background to-primary/5">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
           <motion.div
@@ -128,7 +128,7 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <h2 className="font-headline text-3xl font-bold md:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-foreground to-primary">
-              The App Experience
+              The Ziravo App Experience
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
               Our mobile app is where the magic happens. Travelers browse and purchase itineraries, making it the ultimate tool for modern exploration.
@@ -202,7 +202,7 @@ export default function Home() {
               <div className="relative -rotate-3 transform transition-transform hover:rotate-0 hover:scale-105 duration-300">
                 <Image
                   src="https://placehold.co/350x525.png"
-                  alt="App on a smartphone"
+                  alt="Ziravo App on a smartphone"
                   data-ai-hint="phone mockup travel"
                   width={350}
                   height={525}
@@ -247,7 +247,7 @@ export default function Home() {
                   <CardTitle className="font-headline mt-4 text-2xl">1. Join the Collective</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">Sign up as a creator. It's fast, free, and your first step to a new revenue stream.</p>
+                  <p className="text-muted-foreground">Sign up as a Ziravo creator. It's fast, free, and your first step to a new revenue stream.</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -275,7 +275,7 @@ export default function Home() {
                   <CardTitle className="font-headline mt-4 text-2xl">3. Reach the World</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">Once approved, your itinerary is live on the app, ready for travelers to purchase and explore.</p>
+                  <p className="text-muted-foreground">Once approved, your itinerary is live on the Ziravo app, ready for travelers to purchase and explore.</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -287,7 +287,7 @@ export default function Home() {
       <section className="w-full py-12 bg-muted/40">
         <div className="container mx-auto px-4 text-center">
             <h3 className="font-headline text-2xl font-bold">Test the Platform</h3>
-            <p className="text-muted-foreground mt-2 mb-6">Click a button to simulate purchasing an itinerary.</p>
+            <p className="text-muted-foreground mt-2 mb-6">Click a button to simulate purchasing an itinerary. (You must be logged in)</p>
             <div className="flex flex-wrap justify-center gap-4">
                 <Button asChild size="lg">
                     <Link href="/pay?item_id=1">Test Pay for '7-Day Bali Escape' (ID: 1)</Link>
@@ -309,7 +309,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center"
           >
-            <h2 className="font-headline text-3xl font-bold md:text-4xl">Why Creators Love Us</h2>
+            <h2 className="font-headline text-3xl font-bold md:text-4xl">Why Creators Love Ziravo</h2>
             <p className="mt-4 max-w-2xl mx-auto text-muted-foreground">
               Hear from travel experts about their experience with our platform
             </p>
@@ -326,7 +326,7 @@ export default function Home() {
               <Card className="border-l-4 border-accent shadow-lg hover:shadow-xl transition-shadow h-full">
                 <CardContent className="pt-6">
                   <blockquote className="space-y-4">
-                    <p className="text-muted-foreground text-lg italic">"The platform makes it so easy to share my travel knowledge. I love how I can focus on creating great content while the tech side is handled."</p>
+                    <p className="text-muted-foreground text-lg italic">"The platform makes it so easy to share my travel knowledge. I love how I can focus on creating great content while Ziravo handles the technical side."</p>
                     <footer className="flex items-center space-x-4 pt-2">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src="https://placehold.co/100x100.png" data-ai-hint="female portrait" alt="Alexa T." />
@@ -346,7 +346,7 @@ export default function Home() {
               <Card className="border-l-4 border-accent shadow-lg hover:shadow-xl transition-shadow h-full">
                 <CardContent className="pt-6">
                   <blockquote className="space-y-4">
-                    <p className="text-muted-foreground text-lg italic">"As a photographer, I appreciate how I can share the stories behind my images. It's a perfect complement to my visual work."</p>
+                    <p className="text-muted-foreground text-lg italic">"As a photographer, I appreciate how Ziravo lets me share the stories behind my images. It's a perfect complement to my visual work."</p>
                     <footer className="flex items-center space-x-4 pt-2">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src="https://placehold.co/100x100.png" data-ai-hint="male portrait" alt="Mario E." />

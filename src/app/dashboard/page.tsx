@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -215,12 +214,13 @@ function CreatorDashboard() {
           ...doc.data()
         })) as Itinerary[];
         setItineraries(itinerariesData);
-        if(loading) setLoading(false);
+        setLoading(false);
       }, (error) => {
         console.error("Failed to fetch itineraries:", error);
         toast({
           variant: "destructive", title: "Error", description: "Could not load itineraries."
         });
+        setLoading(false);
       });
 
       const unsubPayouts = onSnapshot(payoutsQuery, (querySnapshot) => {
@@ -240,7 +240,7 @@ function CreatorDashboard() {
         unsubItineraries();
         unsubPayouts();
       }
-    }, [user, toast, loading]);
+    }, [user, toast]);
   
     const metrics = {
       totalItineraries: itineraries.length,

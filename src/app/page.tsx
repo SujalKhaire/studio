@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, UploadCloud, UserPlus, AppWindow, Smartphone, MapPin, CheckCircle, Sparkles } from "lucide-react";
+import { ArrowRight, UploadCloud, UserPlus, AppWindow, Smartphone, MapPin, CircleCheckBig, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
@@ -26,7 +27,7 @@ const staggerContainer = {
 
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -142,7 +143,7 @@ export default function Home() {
                 className="flex items-start p-4 rounded-lg hover:bg-primary/5 transition-colors"
               >
                 <div className="bg-primary/10 p-2 rounded-lg mr-4">
-                  <CheckCircle className="h-6 w-6 text-accent" />
+                  <CircleCheckBig className="h-6 w-6 text-accent" />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Discover Unique Trips</h3>
@@ -157,7 +158,7 @@ export default function Home() {
                 className="flex items-start p-4 rounded-lg hover:bg-primary/5 transition-colors"
               >
                 <div className="bg-primary/10 p-2 rounded-lg mr-4">
-                  <CheckCircle className="h-6 w-6 text-accent" />
+                  <CircleCheckBig className="h-6 w-6 text-accent" />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Seamless In-App Purchases</h3>
@@ -172,7 +173,7 @@ export default function Home() {
                 className="flex items-start p-4 rounded-lg hover:bg-primary/5 transition-colors"
               >
                 <div className="bg-primary/10 p-2 rounded-lg mr-4">
-                  <CheckCircle className="h-6 w-6 text-accent" />
+                  <CircleCheckBig className="h-6 w-6 text-accent" />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Offline Access Anywhere</h3>
@@ -392,3 +393,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

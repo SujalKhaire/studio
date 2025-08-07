@@ -1,11 +1,10 @@
+"use client";
 
-'use client';
-
-import * as React from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,133 +13,243 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Bot, KeyRound, Loader2 } from "lucide-react";
+import { processApplication, ProcessApplicationInputSchema } from "@/ai/flows/process-application";
+import { useEffect, useState, useMemo } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-const verificationFormSchema = z.object({
-  fullName: z.string().min(2, 'Full name is required.'),
-  instagramHandle: z.string().min(3, 'Instagram handle is required.'),
-  bio: z.string().min(50, 'Bio must be at least 50 characters.').max(500, 'Bio cannot exceed 500 characters.'),
+
+const formSchema = ProcessApplicationInputSchema.omit({ userId: true }).extend({
+  confirm: z.boolean().refine((val) => val === true, {
+    message: "You must confirm you have sent the code.",
+  }),
 });
 
-type VerificationFormValues = z.infer<typeof verificationFormSchema>;
+// Helper function to generate a random code
+const generateCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+};
+
 
 export default function InfluencerVerificationForm() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Use state to manage the code to avoid hydration mismatches
+  const [verificationCode, setVerificationCode] = useState<string | null>(null);
+  useEffect(() => {
+    setVerificationCode(generateCode());
+  }, [])
 
-  const form = useForm<VerificationFormValues>({
-    resolver: zodResolver(verificationFormSchema),
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: '',
-      instagramHandle: '',
-      bio: '',
+      fullName: user?.displayName || "",
+      email: user?.email || "",
+      socialLinks: "",
+      verificationCode: "",
+      confirm: false,
     },
   });
 
-  async function onSubmit(data: VerificationFormValues) {
-    if (!user) return;
-    setIsSubmitting(true);
+  useEffect(() => {
+    if(user) {
+        form.setValue("fullName", user.displayName || "");
+        form.setValue("email", user.email || "");
+    }
+    if (verificationCode) {
+        form.setValue("verificationCode", verificationCode);
+    }
+  }, [user, verificationCode, form]);
+  
+  if (!user || !verificationCode) {
+    return (
+        <div className="flex h-64 items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to submit.",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
     try {
-      const requestRef = doc(db, 'influencer_requests', user.uid);
-      await setDoc(requestRef, {
-        ...data,
+      await processApplication({
         userId: user.uid,
-        email: user.email,
-        status: 'pending',
-        submittedAt: serverTimestamp(),
+        ...values,
       });
+      // The onSnapshot listener on the dashboard page will handle the UI update
+      // so we don't need to navigate or set state here.
       toast({
-        title: 'Application Submitted',
-        description: "We've received your verification request. We'll review it and get back to you soon.",
+        title: "Application Submitted!",
+        description: "We've received your request. We'll review it and notify you via email.",
       });
-    } catch (error) {
-      console.error('Error submitting verification form: ', error);
+
+    } catch (error: any) {
+      console.error("Verification submission error:", error);
       toast({
-        variant: 'destructive',
-        title: 'Submission Failed',
-        description: 'Something went wrong. Please try again.',
+        variant: "destructive",
+        title: "Submission Failed",
+        description: error.message || "There was an error submitting your application. Please try again.",
       });
     } finally {
-      setIsSubmitting(false);
+        setIsProcessing(false);
     }
   }
 
   return (
     <div className="container mx-auto py-10 px-4 flex justify-center">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle className="font-headline text-2xl">Become a Verified Creator</CardTitle>
-          <CardDescription>
-            Complete this application to get verified. This helps us maintain a high-quality community of travel experts.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your full name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="instagramHandle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Instagram Handle</FormLabel>
-                    <FormControl>
-                      <Input placeholder="@yourhandle" {...field} />
-                    </FormControl>
-                    <FormDescription>Your primary social media handle for verification.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="bio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Your Creator Bio</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Tell us about your travel style, expertise, and what kind of itineraries you create..."
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                     <FormDescription>
-                        This will be displayed on your public profile.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Submit for Verification
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+    <Card className="w-full max-w-2xl">
+      <CardHeader>
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+            <Bot className="h-8 w-8 text-primary" />
+        </div>
+        <CardTitle className="font-headline text-2xl text-center">Creator Verification</CardTitle>
+        <CardDescription className="text-center">
+          Complete the two steps below to apply for a creator account.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+           <fieldset disabled={isProcessing} className="space-y-6">
+            
+            <Alert>
+                <KeyRound className="h-4 w-4"/>
+                <AlertTitle className="font-bold">
+                    Step 1: Verify Your Social Account
+                </AlertTitle>
+                <AlertDescription className="space-y-3">
+                   <p>To prove you own your social media account, send us a Direct Message (DM) from the account you listed in the form.</p>
+                   <p>Your unique verification code is:</p>
+                   <div className="flex justify-center">
+                    <div className="text-2xl font-bold tracking-widest bg-muted text-foreground rounded-md px-4 py-2 my-2 inline-block">
+                        {verificationCode}
+                    </div>
+                   </div>
+                   <p>DM this code to our <a href="https://instagram.com/ziravo" target="_blank" rel="noopener noreferrer" className="font-semibold underline hover:text-primary">@Ziravo Instagram account</a>. We'll check for your message after you submit this form.</p>
+                </AlertDescription>
+            </Alert>
+
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Step 2: Submit Your Application</h3>
+                <div className="space-y-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField
+                        control={form.control}
+                        name="fullName"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Full Name</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Jane Doe" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Email Address</FormLabel>
+                            <FormControl>
+                                <Input placeholder="name@example.com" {...field} readOnly />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    </div>
+                    
+                    <FormField
+                    control={form.control}
+                    name="socialLinks"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Primary Social Media Link</FormLabel>
+                        <FormControl>
+                            <Textarea placeholder="e.g., instagram.com/username" {...field} rows={2} />
+                        </FormControl>
+                        <FormDescription>
+                            The account you will DM us from.
+                        </FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    {/* Hidden field for verificationCode */}
+                    <FormField
+                      control={form.control}
+                      name="verificationCode"
+                      render={({ field }) => (
+                        <FormItem className="hidden">
+                          <FormLabel>Verification Code</FormLabel>
+                          <FormControl>
+                            <Input {...field} readOnly />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                    control={form.control}
+                    name="confirm"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                        <FormControl>
+                            <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel>
+                            I have sent the code and confirm the information above is accurate.
+                            </FormLabel>
+                        </div>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+            </div>
+
+            
+            </fieldset>
+
+            <Button type="submit" className="w-full" disabled={isProcessing}>
+              {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isProcessing ? "Submitting Application..." : "Submit Application"}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
     </div>
   );
 }

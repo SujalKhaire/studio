@@ -4,10 +4,8 @@ import {z} from 'zod';
 import {
   addDoc,
   collection,
-  getDocs,
-  query,
-  orderBy,
-  limit,
+  doc,
+  runTransaction,
 } from 'firebase/firestore';
 import {db} from '@/lib/firebase';
 import {ai} from '@/ai/genkit';
@@ -29,20 +27,24 @@ const uploadItineraryFlow = ai.defineFlow(
   },
   async (input) => {
     try {
+      const newId = await runTransaction(db, async (transaction) => {
+        const counterRef = doc(db, 'counters', 'itineraries');
+        const counterDoc = await transaction.get(counterRef);
+
+        let newCount;
+        if (!counterDoc.exists()) {
+          // If the counter doc doesn't exist, this is the first itinerary.
+          newCount = 1;
+        } else {
+          newCount = counterDoc.data().count + 1;
+        }
+        
+        transaction.set(counterRef, { count: newCount }, { merge: true });
+
+        return newCount;
+      });
+      
       const itinerariesCollection = collection(db, 'itineraries');
-
-      // Get the last itineraryId to generate a new sequential ID
-      const q = query(
-        itinerariesCollection,
-        orderBy('itineraryId', 'desc'),
-        limit(1)
-      );
-      const querySnapshot = await getDocs(q);
-      const lastId = querySnapshot.empty
-        ? 0
-        : querySnapshot.docs[0].data().itineraryId;
-      const newId = lastId + 1;
-
       await addDoc(itinerariesCollection, {
         ...input,
         itineraryId: newId,

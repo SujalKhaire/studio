@@ -7,8 +7,11 @@ import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, CreditCard } from 'lucide-react';
+import { AlertCircle, CreditCard, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
+import { createRazorpayOrder } from '@/ai/flows/create-razorpay-order';
+import Script from 'next/script';
 
 interface Itinerary {
   id: string; // Document ID
@@ -17,7 +20,14 @@ interface Itinerary {
   creatorId: string;
 }
 
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
+
 function PayPageContent() {
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
@@ -64,42 +74,101 @@ function PayPageContent() {
     fetchItinerary();
   }, [itemId]);
 
-  const handlePayment = async () => {
+  const handlePaymentSuccess = async () => {
     if (!itinerary) return;
+
+    try {
+        const itineraryRef = doc(db, 'itineraries', itinerary.id);
+        
+        await runTransaction(db, async (transaction) => {
+          const itineraryDoc = await transaction.get(itineraryRef);
+          if (!itineraryDoc.exists()) {
+            throw "Document does not exist!";
+          }
+  
+          const newSales = (itineraryDoc.data().sales || 0) + 1;
+          const newEarnings = (itineraryDoc.data().earnings || 0) + itineraryDoc.data().price;
+          
+          transaction.update(itineraryRef, { 
+            sales: newSales,
+            earnings: newEarnings 
+          });
+        });
+  
+        router.push('/payment-success');
+      } catch (e) {
+        console.error("Transaction failed: ", e);
+        toast({
+          variant: 'destructive',
+          title: "Database Update Failed",
+          description: "Your payment was successful, but we couldn't update your purchase. Please contact support."
+        });
+      }
+  }
+
+
+  const handlePayment = async () => {
+    if (!itinerary || !user) {
+        toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to pay.'})
+        return;
+    };
     setProcessing(true);
 
     try {
-      const itineraryRef = doc(db, 'itineraries', itinerary.id);
-      
-      await runTransaction(db, async (transaction) => {
-        const itineraryDoc = await transaction.get(itineraryRef);
-        if (!itineraryDoc.exists()) {
-          throw "Document does not exist!";
+        const order = await createRazorpayOrder({
+            amount: itinerary.price * 100, // Amount in paise
+            currency: 'INR',
+        });
+
+        if (!order || !order.id) {
+            throw new Error('Could not create Razorpay order.');
         }
 
-        const newSales = (itineraryDoc.data().sales || 0) + 1;
-        const newEarnings = (itineraryDoc.data().earnings || 0) + itineraryDoc.data().price;
-        
-        transaction.update(itineraryRef, { 
-          sales: newSales,
-          earnings: newEarnings 
-        });
-      });
+        const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            amount: order.amount,
+            currency: order.currency,
+            name: "Ziravo",
+            description: `Payment for ${itinerary.title}`,
+            order_id: order.id,
+            handler: async (response: any) => {
+                // For this example, we'll assume payment is successful on handler callback.
+                // In a production app, you should verify the payment signature on your backend.
+                await handlePaymentSuccess();
+            },
+            prefill: {
+                name: user.displayName || 'Ziravo User',
+                email: user.email,
+            },
+            notes: {
+                itineraryId: itinerary.id,
+                userId: user.uid,
+            },
+            theme: {
+                color: "#2563eb"
+            }
+        };
+        const rzp = new window.Razorpay(options);
+        rzp.open();
 
-      router.push('/payment-success');
-    } catch (e) {
-      console.error("Transaction failed: ", e);
-      toast({
-        variant: 'destructive',
-        title: "Payment Failed",
-        description: "Could not process your payment. Please try again."
-      });
+    } catch(e: any) {
+        console.error("Payment failed", e);
+        toast({
+            variant: 'destructive',
+            title: 'Payment Failed',
+            description: e.message || "Could not process your payment. Please try again."
+        })
     } finally {
         setProcessing(false);
     }
   };
 
   return (
+    <>
+    <Script
+        id="razorpay-checkout-js"
+        src="https://checkout.razorpay.com/v1/checkout.js"
+    />
     <div className="container mx-auto py-10 px-4 flex justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
@@ -129,19 +198,16 @@ function PayPageContent() {
               <div className="text-4xl font-bold font-headline text-primary">
                 ₹{itinerary.price.toFixed(2)}
               </div>
-              <Button onClick={handlePayment} className="w-full" size="lg" disabled={processing}>
-                {processing ? "Processing..." : (
-                  <>
-                    <CreditCard className="mr-2 h-5 w-5" />
-                    Pay Now (Simulated)
-                  </>
-                )}
+              <Button onClick={handlePayment} className="w-full" size="lg" disabled={processing || !user}>
+                {processing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <CreditCard className="mr-2 h-5 w-5" />}
+                {processing ? "Processing..." : "Pay with Razorpay"}
               </Button>
             </div>
           )}
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }
 

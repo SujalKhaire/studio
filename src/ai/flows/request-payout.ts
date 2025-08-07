@@ -1,12 +1,11 @@
 'use server';
 
 import {z} from 'zod';
-import {nextAction} from '@genkit-ai/next/server';
 import {addDoc, collection, serverTimestamp} from 'firebase/firestore';
 import {db} from '@/lib/firebase';
 import {ai} from '@/ai/genkit';
 
-export const requestPayoutFlow = ai.defineFlow(
+const requestPayoutFlow = ai.defineFlow(
   {
     name: 'requestPayout',
     inputSchema: z.object({
@@ -47,4 +46,6 @@ export const requestPayoutFlow = ai.defineFlow(
   }
 );
 
-export const requestPayout = nextAction(requestPayoutFlow);
+export async function requestPayout(input: z.infer<typeof requestPayoutFlow.inputSchema>) {
+    return requestPayoutFlow(input);
+}

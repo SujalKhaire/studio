@@ -1,7 +1,6 @@
 'use server';
 
 import {z} from 'zod';
-import {nextAction} from '@genkit-ai/next/server';
 import {
   addDoc,
   collection,
@@ -13,7 +12,7 @@ import {
 import {db} from '@/lib/firebase';
 import {ai} from '@/ai/genkit';
 
-export const uploadItineraryFlow = ai.defineFlow(
+const uploadItineraryFlow = ai.defineFlow(
   {
     name: 'uploadItinerary',
     inputSchema: z.object({
@@ -68,4 +67,7 @@ export const uploadItineraryFlow = ai.defineFlow(
   }
 );
 
-export const uploadItinerary = nextAction(uploadItineraryFlow);
+
+export async function uploadItinerary(input: z.infer<typeof uploadItineraryFlow.inputSchema>) {
+    return uploadItineraryFlow(input);
+}

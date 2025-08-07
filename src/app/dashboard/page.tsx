@@ -20,8 +20,8 @@ import Link from 'next/link';
 type VerificationStatus = 'not_submitted' | 'pending' | 'approved' | 'rejected';
 
 export interface Itinerary {
+  docId: string;
   id: string;
-  itineraryId: number;
   title: string;
   status: 'Published' | 'Draft' | 'Rejected';
   sales: number;
@@ -205,12 +205,12 @@ function CreatorDashboard() {
     useEffect(() => {
       if (!user) return;
   
-      const itinerariesQuery = query(collection(db, 'itineraries'), where('creatorId', '==', user.uid));
+      const itinerariesQuery = query(collection(db, 'itineraries'), where('userId', '==', user.uid));
       const payoutsQuery = query(collection(db, 'payout_requests'), where('userId', '==', user.uid));
   
       const unsubItineraries = onSnapshot(itinerariesQuery, (querySnapshot) => {
         const itinerariesData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
+          docId: doc.id,
           ...doc.data()
         })) as Itinerary[];
         setItineraries(itinerariesData);
@@ -432,8 +432,8 @@ function CreatorDashboard() {
                 </TableHeader>
                 <TableBody>
                   {itineraries.length > 0 ? itineraries.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-mono text-center">{item.itineraryId}</TableCell>
+                    <TableRow key={item.docId}>
+                      <TableCell className="font-mono text-center">{item.id}</TableCell>
                       <TableCell className="font-medium">{item.title}</TableCell>
                       <TableCell><ItineraryStatusBadge status={item.status} /></TableCell>
                       <TableCell className="text-center">{item.sales || 0}</TableCell>

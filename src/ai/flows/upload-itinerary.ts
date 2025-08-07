@@ -22,7 +22,7 @@ const uploadItineraryFlow = ai.defineFlow(
     outputSchema: z.object({
       success: z.boolean(),
       message: z.string(),
-      itineraryId: z.number().optional(),
+      itineraryId: z.string().optional(),
     }),
   },
   async (input) => {
@@ -41,15 +41,20 @@ const uploadItineraryFlow = ai.defineFlow(
         
         transaction.set(counterRef, { count: newCount }, { merge: true });
 
-        return newCount;
+        return newCount.toString();
       });
       
       const itinerariesCollection = collection(db, 'itineraries');
       await addDoc(itinerariesCollection, {
-        ...input,
-        itineraryId: newId,
+        title: input.title,
+        publicLink: input.publicLink,
+        price: input.price,
+        userId: input.creatorId, // Changed from creatorId to userId
+        id: newId, // Changed from itineraryId to id
         status: 'Draft',
         createdAt: new Date().toISOString(),
+        sales: 0,
+        earnings: 0,
       });
 
       return {

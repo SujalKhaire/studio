@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CircleCheckBig } from 'lucide-react';
@@ -13,12 +14,12 @@ export default function PaymentSuccessPage() {
           </div>
           <CardTitle className="font-headline text-3xl mt-4">Payment Successful!</CardTitle>
           <CardDescription>
-            Your transaction has been completed. Your itinerary is now available. (This is a simulation).
+            Your transaction has been completed. You should be redirected to the app shortly.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-6">
-            In a real application, you would receive an email with a link to your purchased itinerary.
+            If you are not redirected automatically, please open the app manually to find your purchased itinerary.
           </p>
           <Button asChild>
             <Link href="/">Return to Homepage</Link>

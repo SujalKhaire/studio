@@ -3,8 +3,6 @@
 
 import * as React from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { doc, getDoc, collection, query, where, getDocs, runTransaction, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,11 +13,17 @@ import { createRazorpayOrder } from '@/ai/flows/create-razorpay-order';
 import Script from 'next/script';
 
 interface Itinerary {
-  id: string; // Document ID
-  title: string;
+  id: number;
+  name: string;
   price: number;
-  creatorId: string;
 }
+
+const itineraries: Itinerary[] = [
+  { "id": 123, "name": "Manali Trip", "price": 5000 },
+  { "id": 124, "name": "Goa Trip", "price": 7000 },
+  { "id": 1, "name": "7-Day Bali Escape", "price": 1599 },
+  { "id": 2, "name": "Kyoto Cherry Blossom Tour", "price": 2499 },
+];
 
 declare global {
     interface Window {
@@ -40,79 +44,35 @@ function PayPageContent() {
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    async function fetchItinerary() {
-      if (!itemId) {
-        setError('No item ID provided.');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const itinerariesRef = collection(db, 'itineraries');
-        const q = query(itinerariesRef, where('id', '==', itemId));
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-          setError('Itinerary not found.');
-        } else {
-          const doc = querySnapshot.docs[0];
-          const docData = doc.data();
-          setItinerary({
-            id: doc.id,
-            title: docData.title,
-            price: docData.price,
-            creatorId: docData.userId,
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        setError('Failed to fetch itinerary details.');
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+    if (!itemId) {
+      setError('No item ID provided.');
+      setLoading(false);
+      return;
     }
 
-    fetchItinerary();
+    const foundItinerary = itineraries.find(item => item.id.toString() === itemId);
+
+    if (foundItinerary) {
+      setItinerary(foundItinerary);
+    } else {
+      setError('Itinerary not found.');
+    }
+    setLoading(false);
   }, [itemId]);
 
-  const handlePaymentSuccess = async (paymentResponse: any) => {
+  const handlePaymentSuccess = (paymentResponse: any) => {
     if (!itinerary) return;
 
-    // Redirect immediately after successful payment response from Razorpay.
-    router.push('/payment-success');
+    // Redirect to the custom Android app URL scheme.
+    const redirectUrl = `yourapp://payment_success?item_id=${itinerary.id}&payment_id=${paymentResponse.razorpay_payment_id}`;
+    window.location.href = redirectUrl;
 
-    try {
-      const itineraryRef = doc(db, 'itineraries', itinerary.id);
-      
-      await runTransaction(db, async (transaction) => {
-        const itineraryDoc = await transaction.get(itineraryRef);
-        if (!itineraryDoc.exists()) {
-          throw new Error("Itinerary document not found.");
-        }
-
-        const newSales = (itineraryDoc.data().sales || 0) + 1;
-        const newEarnings = (itineraryDoc.data().earnings || 0) + itineraryDoc.data().price;
-        
-        transaction.update(itineraryRef, { 
-          sales: newSales,
-          earnings: newEarnings 
-        });
-      });
-
-      toast({
-        title: "Purchase Recorded!",
-        description: "Your purchase has been successfully recorded in your account."
-      });
-
-    } catch (e: any) {
-      console.error("Transaction failed: ", e);
-      toast({
-        variant: 'destructive',
-        title: "Database Update Failed",
-        description: `Your payment was successful, but we couldn't update the itinerary details. Please contact support. Error: ${e.message}`,
-        duration: 10000,
-      });
-    }
+    // As a fallback, you can also redirect to a web success page after a delay
+    // in case the app redirect doesn't work.
+    setTimeout(() => {
+        router.push(`/payment-success?item_id=${itinerary.id}`);
+    }, 2000);
   }
 
 
@@ -138,10 +98,9 @@ function PayPageContent() {
             amount: order.amount,
             currency: order.currency,
             name: "Ziravo",
-            description: `Payment for ${itinerary.title}`,
+            description: `Payment for ${itinerary.name}`,
             order_id: order.id,
             handler: (response: any) => {
-                // The handler is called by Razorpay upon successful payment.
                 handlePaymentSuccess(response);
             },
             prefill: {
@@ -158,7 +117,6 @@ function PayPageContent() {
         };
         const rzp = new window.Razorpay(options);
 
-        // Add a listener for payment failure
         rzp.on('payment.failed', function (response: any) {
             console.error('Razorpay payment failed:', response.error);
             toast({
@@ -166,6 +124,8 @@ function PayPageContent() {
                 title: 'Payment Failed',
                 description: `Code: ${response.error.code}. ${response.error.description}`,
             });
+            // Optionally redirect to a failure page
+            // router.push('/payment-failed');
             setProcessing(false);
         });
 
@@ -211,7 +171,7 @@ function PayPageContent() {
           {!loading && !error && itinerary && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold">{itinerary.title}</h3>
+                <h3 className="text-lg font-semibold">{itinerary.name}</h3>
                 <p className="text-sm text-muted-foreground">Digital Itinerary Guide</p>
               </div>
               <div className="text-4xl font-bold font-headline text-primary">
@@ -233,7 +193,7 @@ function PayPageContent() {
 
 export default function PayPage() {
     return (
-        <React.Suspense fallback={<div>Loading...</div>}>
+        <React.Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
             <PayPageContent />
         </React.Suspense>
     )

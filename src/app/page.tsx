@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, UploadCloud, UserPlus, AppWindow, Smartphone, MapPin, CircleCheckBig, Sparkles } from "lucide-react";
+import { ArrowRight, UploadCloud, UserPlus, AppWindow, Smartphone, MapPin, CircleCheckBig, Sparkles, Users, Palette } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
@@ -27,7 +26,7 @@ const staggerContainer = {
 
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -248,7 +247,7 @@ export default function Home() {
                   <CardTitle className="font-headline mt-4 text-2xl">1. Join the Collective</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">Sign up as a Ziravo creator. It's fast, free, and your first step to a new revenue stream.</p>
+                  <p className="text-muted-foreground">Sign up as a Ziravo creator. It\'s fast, free, and your first step to a new revenue stream.</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -300,7 +299,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* How It Works For All Section */}
       <section className="w-full py-20 md:py-28 bg-gradient-to-b from-background to-primary/5">
         <div className="container mx-auto px-4">
           <motion.div
@@ -310,9 +309,9 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center"
           >
-            <h2 className="font-headline text-3xl font-bold md:text-4xl">Why Creators Love Ziravo</h2>
-            <p className="mt-4 max-w-2xl mx-auto text-muted-foreground">
-              Hear from travel experts about their experience with our platform
+            <h2 className="font-headline text-3xl font-bold md:text-4xl">A Platform for Everyone</h2>
+            <p className="mt-4 max-w-3xl mx-auto text-muted-foreground">
+              Whether you're a traveler seeking inspiration or a creator ready to monetize your passion, Ziravo is built for you.
             </p>
           </motion.div>
           
@@ -324,41 +323,43 @@ export default function Home() {
             className="mt-16 grid gap-8 md:grid-cols-1 lg:grid-cols-2"
           >
             <motion.div variants={fadeIn}>
-              <Card className="border-l-4 border-accent shadow-lg hover:shadow-xl transition-shadow h-full">
-                <CardContent className="pt-6">
-                  <blockquote className="space-y-4">
-                    <p className="text-muted-foreground text-lg italic">"The platform makes it so easy to share my travel knowledge. I love how I can focus on creating great content while Ziravo handles the technical side."</p>
-                    <footer className="flex items-center space-x-4 pt-2">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src="https://placehold.co/100x100.png" data-ai-hint="female portrait" alt="Alexa T." />
-                        <AvatarFallback>AT</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-semibold text-lg">Alexa T.</p>
-                        <p className="text-sm text-muted-foreground">Travel Blogger</p>
-                      </div>
-                    </footer>
-                  </blockquote>
+              <Card className="shadow-lg hover:shadow-xl transition-shadow h-full bg-card/80 backdrop-blur-sm">
+                <CardHeader>
+                    <div className="flex items-center gap-4">
+                         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                            <Users className="h-6 w-6 text-primary" />
+                        </div>
+                        <CardTitle className="font-headline text-2xl">For Travelers</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <p className="text-muted-foreground">Unlock unique travel experiences crafted by experts. Find the perfect plan for your next adventure, purchase securely, and access it anytime on the Ziravo mobile app.</p>
+                     <ul className="space-y-3">
+                        <li className="flex items-start gap-3"><CircleCheckBig className="h-5 w-5 text-accent mt-1 shrink-0" /><span>Discover a marketplace of unique, high-quality travel plans.</span></li>
+                        <li className="flex items-start gap-3"><CircleCheckBig className="h-5 w-5 text-accent mt-1 shrink-0" /><span>Securely purchase itineraries in-app with a single tap.</span></li>
+                        <li className="flex items-start gap-3"><CircleCheckBig className="h-5 w-5 text-accent mt-1 shrink-0" /><span>Download and use your travel plans offline, anywhere in the world.</span></li>
+                    </ul>
                 </CardContent>
               </Card>
             </motion.div>
             
             <motion.div variants={fadeIn}>
-              <Card className="border-l-4 border-accent shadow-lg hover:shadow-xl transition-shadow h-full">
-                <CardContent className="pt-6">
-                  <blockquote className="space-y-4">
-                    <p className="text-muted-foreground text-lg italic">"As a photographer, I appreciate how Ziravo lets me share the stories behind my images. It's a perfect complement to my visual work."</p>
-                    <footer className="flex items-center space-x-4 pt-2">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src="https://placehold.co/100x100.png" data-ai-hint="male portrait" alt="Mario E." />
-                        <AvatarFallback>ME</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-semibold text-lg">Mario E.</p>
-                        <p className="text-sm text-muted-foreground">Adventure Photographer</p>
-                      </div>
-                    </footer>
-                  </blockquote>
+              <Card className="shadow-lg hover:shadow-xl transition-shadow h-full bg-card/80 backdrop-blur-sm">
+                 <CardHeader>
+                    <div className="flex items-center gap-4">
+                         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10">
+                            <Palette className="h-6 w-6 text-accent" />
+                        </div>
+                        <CardTitle className="font-headline text-2xl">For Creators</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground">Turn your travel knowledge into a new revenue stream. Our platform gives you the tools to sell your itineraries to a global audience without the technical hassle.</p>
+                   <ul className="space-y-3">
+                        <li className="flex items-start gap-3"><CircleCheckBig className="h-5 w-5 text-primary mt-1 shrink-0" /><span>Join for free and upload your itineraries via a simple link.</span></li>
+                        <li className="flex items-start gap-3"><CircleCheckBig className="h-5 w-5 text-primary mt-1 shrink-0" /><span>Set your own price and get paid for every sale.</span></li>
+                        <li className="flex items-start gap-3"><CircleCheckBig className="h-5 w-5 text-primary mt-1 shrink-0" /><span>Track your sales and earnings through a dedicated creator dashboard.</span></li>
+                    </ul>
                 </CardContent>
               </Card>
             </motion.div>
@@ -393,5 +394,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

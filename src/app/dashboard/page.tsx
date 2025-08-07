@@ -206,7 +206,7 @@ function CreatorDashboard() {
   
       setLoading(true);
       const itinerariesQuery = query(collection(db, 'itineraries'), where('creatorId', '==', user.uid));
-      const payoutsQuery = query(collection(db, 'payout_requests'), where('userId', '==', user.uid), orderBy('requestedAt', 'desc'));
+      const payoutsQuery = query(collection(db, 'payout_requests'), where('userId', '==', user.uid));
   
       const unsubItineraries = onSnapshot(itinerariesQuery, (querySnapshot) => {
         const itinerariesData = querySnapshot.docs.map(doc => ({
@@ -228,7 +228,15 @@ function CreatorDashboard() {
             id: doc.id,
             ...doc.data(),
           })) as Payout[];
-        setPayouts(payoutsData);
+        
+        // Sort payouts by requestedAt date, descending
+        const sortedPayouts = payoutsData.sort((a, b) => {
+            const dateA = a.requestedAt?.toDate() || new Date(0);
+            const dateB = b.requestedAt?.toDate() || new Date(0);
+            return dateB.getTime() - dateA.getTime();
+        });
+
+        setPayouts(sortedPayouts);
       }, (error) => {
         console.error("Failed to fetch payouts:", error);
         toast({

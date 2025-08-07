@@ -124,7 +124,7 @@ function PayPageContent() {
     if (!itinerary || !userId) {
         toast({ variant: 'destructive', title: 'Error', description: 'Missing itinerary or user information.'})
         return;
-    };
+    }
     setProcessing(true);
 
     try {
@@ -182,7 +182,7 @@ function PayPageContent() {
         })
         setProcessing(false);
     }
-  };
+  }
 
   return (
     <>
@@ -237,3 +237,6 @@ export default function PayPage() {
     return (
         <React.Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
             <PayPageContent />
+        </React.Suspense>
+    );
+}

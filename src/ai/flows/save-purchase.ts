@@ -16,12 +16,14 @@ const SavePurchaseInputSchema = z.object({
   userId: z.string(),
   paymentId: z.string(),
 });
+export type SavePurchaseInput = z.infer<typeof SavePurchaseInputSchema>;
 
 const SavePurchaseOutputSchema = z.object({
   success: z.boolean(),
   documentId: z.string().optional(),
   message: z.string(),
 });
+export type SavePurchaseOutput = z.infer<typeof SavePurchaseOutputSchema>;
 
 const savePurchaseFlow = ai.defineFlow(
   {
@@ -79,3 +81,6 @@ const savePurchaseFlow = ai.defineFlow(
 
 export async function savePurchase(
   input: z.infer<typeof SavePurchaseInputSchema>
+): Promise<z.infer<typeof SavePurchaseOutputSchema>> {
+  return await savePurchaseFlow(input);
+}

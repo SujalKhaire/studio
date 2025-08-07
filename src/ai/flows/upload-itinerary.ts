@@ -2,11 +2,10 @@
 
 import {z} from 'zod';
 import {
-  addDoc,
-  collection,
   doc,
   runTransaction,
   serverTimestamp,
+  setDoc,
 } from 'firebase/firestore';
 import {db} from '@/lib/firebase';
 import {ai} from '@/ai/genkit';
@@ -50,8 +49,8 @@ const uploadItineraryFlow = ai.defineFlow(
         return newCount.toString();
       });
       
-      const itinerariesCollection = collection(db, 'itineraries');
-      await addDoc(itinerariesCollection, {
+      const newItineraryRef = doc(db, 'itineraries', newId);
+      await setDoc(newItineraryRef, {
         title: input.title,
         publicLink: input.itineraryLink,
         price: input.price,

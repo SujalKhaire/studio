@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -287,13 +288,13 @@ export default function Home() {
       <section className="w-full py-12 bg-muted/40">
         <div className="container mx-auto px-4 text-center">
             <h3 className="font-headline text-2xl font-bold">Test the Platform</h3>
-            <p className="text-muted-foreground mt-2 mb-6">Click a button to simulate purchasing an itinerary. (You must be logged in)</p>
+            <p className="text-muted-foreground mt-2 mb-6">Click a button to simulate purchasing an itinerary. (User ID passed in URL)</p>
             <div className="flex flex-wrap justify-center gap-4">
                 <Button asChild size="lg">
-                    <Link href="/pay?item_id=1">Test Pay for '7-Day Bali Escape' (ID: 1)</Link>
+                    <Link href="/pay?item_id=1&uid=test_user_123">Test Pay for '7-Day Bali Escape' (ID: 1)</Link>
                 </Button>
                  <Button asChild size="lg" variant="secondary">
-                    <Link href="/pay?item_id=2">Test Pay for 'Kyoto Cherry Blossom Tour' (ID: 2)</Link>
+                    <Link href="/pay?item_id=2&uid=test_user_456">Test Pay for 'Kyoto Cherry Blossom Tour' (ID: 2)</Link>
                 </Button>
             </div>
         </div>
@@ -394,3 +395,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

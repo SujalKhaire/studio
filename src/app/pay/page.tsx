@@ -12,7 +12,8 @@ import { createRazorpayOrder } from '@/ai/flows/create-razorpay-order';
 import Script from 'next/script';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useAuth } from '@/hooks/use-auth';
+import { savePurchase } from '@/ai/flows/save-purchase';
+
 
 interface Itinerary {
   id: string;
@@ -77,19 +78,46 @@ function PayPageContent() {
     fetchItinerary();
   }, [itemId, userId]);
 
-  const handlePaymentSuccess = (paymentResponse: any) => {
+  const handlePaymentSuccess = async (paymentResponse: any) => {
     if (!itinerary || !userId) return;
+  
+    try {
+      // Store the record in Appwrite via secure backend flow
+      const saveResult = await savePurchase({
+        itemId: itinerary.id,
+        userId: userId,
+        paymentId: paymentResponse.razorpay_payment_id,
+      });
 
-    // Redirect to the custom Android app URL scheme.
+      if (!saveResult.success) {
+        // Even if saving fails, the payment was successful.
+        // Alert the user but still redirect.
+        toast({
+            variant: "destructive",
+            title: "Data Save Error",
+            description: "Your payment was successful, but we couldn't save the purchase. Please contact support."
+        });
+      }
+
+    } catch (error: any) {
+        console.error('Error calling savePurchase flow:', error);
+        toast({
+            variant: "destructive",
+            title: "Post-Payment Error",
+            description: "Your payment was successful, but an error occurred. Please contact support."
+        });
+    }
+  
+    // Always redirect to the app on successful payment
     const redirectUrl = `yourapp://payment_success?uid=${userId}&item_id=${itinerary.id}&payment_id=${paymentResponse.razorpay_payment_id}`;
     window.location.href = redirectUrl;
-
-    // As a fallback, you can also redirect to a web success page after a delay
-    // in case the app redirect doesn't work.
+  
+    // Fallback redirect for desktop browsers
     setTimeout(() => {
-        router.push(`/payment-success?item_id=${itinerary.id}`);
+      router.push(`/payment-success?item_id=${itinerary.id}`);
     }, 2000);
-  }
+  };
+  
 
 
   const handlePayment = async () => {
@@ -120,7 +148,6 @@ function PayPageContent() {
                 handlePaymentSuccess(response);
             },
             prefill: {
-                // You can prefill user details if you have them, otherwise leave them blank
                 name: 'Ziravo User',
                 email: '',
             },
@@ -210,6 +237,3 @@ export default function PayPage() {
     return (
         <React.Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
             <PayPageContent />
-        </React.Suspense>
-    )
-}

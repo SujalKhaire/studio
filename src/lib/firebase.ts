@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: "AIzaSyD_6-b9dZyiuwxxSV3nV1OnmP6fzq5nHxg",
+  authDomain: "ziravoweb.firebaseapp.com",
+  projectId: "ziravoweb",
+  storageBucket: "ziravoweb.firebasestorage.app",
+  messagingSenderId: "427271506002",
+  appId: "1:427271506002:web:f8b471d8a4e10fb4acf78b",
 };
 
 // Initialize Firebase

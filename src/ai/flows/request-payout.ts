@@ -1,10 +1,12 @@
-import { defineFlow, run } from '@genkit-ai/flow';
-import { z } from 'zod';
-import { nextAction } from '@genkit-ai/next/server';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+'use server';
 
-export const requestPayoutFlow = defineFlow(
+import {z} from 'zod';
+import {nextAction} from '@genkit-ai/next/server';
+import {addDoc, collection, serverTimestamp} from 'firebase/firestore';
+import {db} from '@/lib/firebase';
+import {ai} from '@/ai/genkit';
+
+export const requestPayoutFlow = ai.defineFlow(
   {
     name: 'requestPayout',
     inputSchema: z.object({
@@ -35,7 +37,8 @@ export const requestPayoutFlow = defineFlow(
       };
     } catch (error) {
       console.error('Error submitting payout request:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred.';
       return {
         success: false,
         message: `Failed to submit payout request: ${errorMessage}`,

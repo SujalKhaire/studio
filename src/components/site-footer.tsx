@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-secondary text-secondary-foreground">
+    <footer className="bg-background border-t">
       <div className="container mx-auto px-6 py-8">
         <div className="flex flex-col items-center justify-between sm:flex-row">
           <Link href="/" className="text-xl font-bold font-headline">
@@ -18,7 +18,7 @@ export default function SiteFooter() {
           </div>
         </div>
 
-        <hr className="my-6 border-gray-300 dark:border-gray-700" />
+        <hr className="my-6 border-border" />
 
         <div className="flex flex-col items-center sm:flex-row sm:justify-between">
           <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Wanderlust Monetizer. All Rights Reserved.</p>

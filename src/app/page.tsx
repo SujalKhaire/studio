@@ -1,243 +1,394 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { ArrowRight, Globe, Palette, Rocket } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, UploadCloud, UserPlus, AppWindow, Smartphone, MapPin, CheckCircle, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+
+const fadeIn = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
 
 export default function Home() {
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = sectionRef.current;
+
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="w-full py-20 md:py-32 lg:py-40 bg-background">
-          <div className="container mx-auto px-4 md:px-6">
-            <motion.div
-              className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]"
-              initial="hidden"
-              animate="visible"
-              variants={fadeIn}
-            >
-              <div className="flex flex-col justify-center space-y-4">
-                <div className="space-y-2">
-                  <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
-                    Monetize Your Wanderlust
-                  </h1>
-                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Join the Wanderlust Monetizer creator hub. Share your travel itineraries and earn from your passion. We handle the rest.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button size="lg" asChild>
-                    <Link href="/register">
-                      Start Selling <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="secondary" asChild>
-                    <Link href="#how-it-works">Learn More</Link>
-                  </Button>
-                </div>
-              </div>
+    <div className="flex flex-col overflow-x-hidden">
+      {/* Hero Section */}
+      <section className="relative w-full bg-gradient-to-b from-primary/5 via-background to-background pt-24 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,hsl(var(--primary)_/_0.1),rgba(255,255,255,0))] -z-10"></div>
+        <div className="absolute inset-0 -z-20 opacity-20">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-primary blur-3xl opacity-30 animate-float"></div>
+          <div className="absolute top-1/3 right-1/3 w-80 h-80 rounded-full bg-accent blur-3xl opacity-20 animate-float-delay"></div>
+        </div>
+        
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="container mx-auto px-4 text-center"
+        >
+          <motion.div variants={fadeIn} className="inline-block mb-4 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+            <span className="text-sm font-medium text-primary flex items-center justify-center gap-2">
+              <Sparkles className="h-4 w-4" /> Turn your travel expertise into income
+            </span>
+          </motion.div>
+          
+          <motion.h1 variants={fadeIn} className="font-headline text-4xl font-black tracking-tight md:text-6xl lg:text-7xl text-glow bg-clip-text text-transparent bg-gradient-to-r from-foreground to-primary/90">
+            Monetize Your <span className="relative inline-block">Wanderlust
+              <svg className="absolute -bottom-2 left-0 w-full h-3 text-accent" viewBox="0 0 200 20">
+                <path d="M0,10 Q100,25 200,10" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+              </svg>
+            </span>
+          </motion.h1>
+          
+          <motion.p variants={fadeIn} className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
+            Join Wanderlust Monetizer, the exclusive marketplace where travel creators sell unique itineraries to a global audience of adventurers.
+          </motion.p>
+          
+          <motion.div variants={fadeIn} className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
+            <Button size="lg" className="rounded-full font-bold text-base group w-full sm:w-auto" asChild>
+              <Link href="/register">
+                Start Selling Now <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform"/>
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="rounded-full font-bold text-base hover:bg-primary/10 w-full sm:w-auto" asChild>
+              <Link href="/#how-it-works">Learn More</Link>
+            </Button>
+          </motion.div>
+          
+          <motion.div 
+            variants={fadeIn}
+            className="mt-16 mx-auto max-w-4xl relative"
+          >
+            <div className="absolute -inset-4 rounded-3xl bg-primary/10 blur-lg -z-10"></div>
+            <div className="relative rounded-2xl overflow-hidden border border-border/20 shadow-2xl shadow-primary/10">
               <Image
-                src="https://placehold.co/600x400.png"
-                width="600"
-                height="400"
-                alt="Hero"
-                data-ai-hint="travel flatlay"
-                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
+                src="https://placehold.co/1280x720.png"
+                alt="Traveler using app"
+                data-ai-hint="travel planning map"
+                width={1280}
+                height={720}
+                className="w-full h-auto"
+                priority
               />
-            </motion.div>
-          </div>
-        </section>
-
-        {/* How It Works Section */}
-        <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container mx-auto px-4 md:px-6">
-            <motion.div
-              className="flex flex-col items-center justify-center space-y-4 text-center"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={fadeIn}
-            >
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">How It Works</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">A Simple Path to Profit</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  We've streamlined the process so you can focus on what you do best: creating amazing travel experiences.
-                </p>
-              </div>
-            </motion.div>
-            <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:grid-cols-3 mt-12">
-              {[
-                { icon: Rocket, title: 'Join the Collective', description: 'Sign up and get verified as a Wanderlust Monetizer creator. It’s quick, easy, and free.' },
-                { icon: Palette, title: 'Share Your Genius', description: 'Upload your unique travel itineraries. Add details, pricing, and a public link to your guide.' },
-                { icon: Globe, title: 'Reach the World', description: 'We showcase your itineraries to a global audience of eager travelers through our app.' },
-              ].map((item, index) => (
-                <motion.div
-                  key={item.title}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.3 }}
-                  variants={fadeIn}
-                  custom={index}
-                  transition={{ delay: index * 0.2 }}
-                  className="grid gap-1"
-                >
-                  <Card>
-                    <CardHeader className="flex flex-row items-center gap-4">
-                      <div className="bg-primary text-primary-foreground rounded-full p-3">
-                        <item.icon className="h-6 w-6" />
-                      </div>
-                      <CardTitle className="font-headline">{item.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p>{item.description}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent"></div>
             </div>
-          </div>
-        </section>
+          </motion.div>
+        </motion.div>
+      </section>
 
-        {/* About App Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
-          <div className="container mx-auto grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
-            <motion.div
-              className="space-y-4"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={fadeIn}
-            >
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">Meet the Wanderlust Monetizer App</h2>
-                <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Our consumer-facing mobile app is where the magic happens. Travelers can discover, purchase, and use your itineraries for their next adventure.
-                </p>
-              </div>
-              <ul className="grid gap-2 py-4">
-                <li>✓ Instant access to purchased guides</li>
-                <li>✓ Seamless one-tap payments</li>
-                <li>✓ Creator profiles to follow your work</li>
-              </ul>
-              <div className="flex gap-2">
-                <Image src="https://placehold.co/120x40.png" width={120} height={40} alt="App Store" data-ai-hint="app store" />
-                <Image src="https://placehold.co/120x40.png" width={120} height={40} alt="Google Play" data-ai-hint="play store" />
-              </div>
-            </motion.div>
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={fadeIn}
-            >
-              <Image
-                src="https://placehold.co/550x550.png"
-                width="550"
-                height="550"
-                alt="App"
-                data-ai-hint="phone mockup travel"
-                className="mx-auto aspect-square overflow-hidden rounded-xl object-cover object-center sm:w-full"
-              />
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Testimonials Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container mx-auto px-4 md:px-6">
-            <motion.div
-              className="flex flex-col items-center justify-center space-y-4 text-center"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={fadeIn}
-            >
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Trusted by Creators</h2>
-              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Hear what our creators have to say about their journey with us.
-              </p>
-            </motion.div>
-            <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 mt-12">
-              {[
-                { name: 'Alex T.', role: 'Travel Blogger', avatar: 'AT', image: 'https://placehold.co/50x50.png', text: 'Wanderlust Monetizer transformed my side-hustle. I was already creating itineraries for my followers, now I get paid for it effortlessly.' },
-                { name: 'Maria S.', role: 'Van Life Influencer', avatar: 'MS', image: 'https://placehold.co/50x50.png', text: 'The platform is super intuitive. Uploading my road trip guides was a breeze, and I saw my first sale within a week!' },
-              ].map((testimonial, index) => (
-                <motion.div
-                  key={testimonial.name}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.3 }}
-                  variants={fadeIn}
-                  custom={index}
-                  transition={{ delay: index * 0.2 }}
-                >
-                  <Card>
-                    <CardContent className="pt-6">
-                      <p className="text-lg">"{testimonial.text}"</p>
-                    </CardContent>
-                    <CardFooter>
-                      <div className="flex items-center gap-4">
-                        <Avatar>
-                          <AvatarImage src={testimonial.image} data-ai-hint="person portrait" />
-                          <AvatarFallback>{testimonial.avatar}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-semibold">{testimonial.name}</p>
-                          <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                        </div>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              ))}
+      {/* About App Section */}
+      <section className="w-full py-20 md:py-28 bg-gradient-to-b from-background to-primary/5">
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="font-headline text-3xl font-bold md:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-foreground to-primary">
+              The App Experience
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Our mobile app is where the magic happens. Travelers browse and purchase itineraries, making it the ultimate tool for modern exploration.
+            </p>
+            <ul className="mt-8 space-y-6">
+              <motion.li 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="flex items-start p-4 rounded-lg hover:bg-primary/5 transition-colors"
+              >
+                <div className="bg-primary/10 p-2 rounded-lg mr-4">
+                  <CheckCircle className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Discover Unique Trips</h3>
+                  <p className="text-muted-foreground">Access a curated marketplace of itineraries from trusted travel experts.</p>
+                </div>
+              </motion.li>
+              <motion.li 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                viewport={{ once: true }}
+                className="flex items-start p-4 rounded-lg hover:bg-primary/5 transition-colors"
+              >
+                <div className="bg-primary/10 p-2 rounded-lg mr-4">
+                  <CheckCircle className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Seamless In-App Purchases</h3>
+                  <p className="text-muted-foreground">Easy, secure transactions for all itineraries right within the app.</p>
+                </div>
+              </motion.li>
+              <motion.li 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                viewport={{ once: true }}
+                className="flex items-start p-4 rounded-lg hover:bg-primary/5 transition-colors"
+              >
+                <div className="bg-primary/10 p-2 rounded-lg mr-4">
+                  <CheckCircle className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Offline Access Anywhere</h3>
+                  <p className="text-muted-foreground">Download itineraries and access them on the go, even without an internet connection.</p>
+                </div>
+              </motion.li>
+            </ul>
+            <div className="mt-10 flex items-center gap-4">
+              <Button variant="outline" size="lg" className="rounded-full font-semibold hover:bg-primary/5">
+                <AppWindow className="mr-2 h-5 w-5" /> Google Play
+              </Button>
+              <Button variant="outline" size="lg" className="rounded-full font-semibold hover:bg-primary/5">
+                <Smartphone className="mr-2 h-5 w-5" /> App Store
+              </Button>
             </div>
-          </div>
-        </section>
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="flex justify-center relative"
+          >
+            <div className="absolute -right-10 -top-10 w-64 h-64 rounded-full bg-primary/10 blur-3xl -z-10"></div>
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-3xl bg-primary/10 blur-lg -z-10"></div>
+              <div className="relative -rotate-3 transform transition-transform hover:rotate-0 hover:scale-105 duration-300">
+                <Image
+                  src="https://placehold.co/350x525.png"
+                  alt="App on a smartphone"
+                  data-ai-hint="phone mockup travel"
+                  width={350}
+                  height={525}
+                  className="rounded-2xl shadow-2xl ring-4 ring-border/20"
+                />
+                <div className="absolute inset-0 rounded-2xl shadow-[inset_0_0_30px_rgba(0,0,0,0.1)] pointer-events-none"></div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-        {/* CTA Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
-          <div className="container mx-auto grid items-center justify-center gap-4 px-4 text-center md:px-6">
-            <motion.div
-              className="space-y-3"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={fadeIn}
-            >
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">Ready to Start Your Journey?</h2>
-              <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Turn your travel expertise into a recurring income stream. Join our community of creators today.
-              </p>
+      {/* How it Works Section */}
+      <section id="how-it-works" className="w-full py-20 md:py-28 bg-background" ref={sectionRef}>
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial="hidden"
+            animate={isVisible ? "visible" : "hidden"}
+            variants={staggerContainer}
+            className="text-center"
+          >
+            <motion.h2 variants={fadeIn} className="font-headline text-3xl font-bold md:text-4xl">
+              Your Journey to Earning, <span className="text-primary">Simplified</span>
+            </motion.h2>
+            <motion.p variants={fadeIn} className="mt-4 max-w-2xl mx-auto text-muted-foreground">
+              We provide the tools, you provide the expertise. Start selling in just three simple steps.
+            </motion.p>
+          </motion.div>
+          
+          <motion.div 
+            initial="hidden"
+            animate={isVisible ? "visible" : "hidden"}
+            variants={staggerContainer}
+            className="mt-16 grid gap-8 md:grid-cols-3"
+          >
+            <motion.div variants={fadeIn}>
+              <Card className="text-center transform hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-primary/20 h-full group">
+                <CardHeader>
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                    <UserPlus className="h-8 w-8 text-primary" />
+                  </div>
+                  <CardTitle className="font-headline mt-4 text-2xl">1. Join the Collective</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Sign up as a creator. It's fast, free, and your first step to a new revenue stream.</p>
+                </CardContent>
+              </Card>
             </motion.div>
-            <motion.div
-              className="mx-auto w-full max-w-sm space-y-2"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={fadeIn}
-              transition={{ delay: 0.2 }}
-            >
-              <Button asChild size="lg" className="w-full">
+            
+            <motion.div variants={fadeIn}>
+              <Card className="text-center transform hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-primary/20 h-full group">
+                <CardHeader>
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                    <UploadCloud className="h-8 w-8 text-primary" />
+                  </div>
+                  <CardTitle className="font-headline mt-4 text-2xl">2. Share Your Genius</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Upload your best travel itineraries as links. Our platform makes them available in our mobile app.</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            <motion.div variants={fadeIn}>
+              <Card className="text-center transform hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-primary/20 h-full group">
+                <CardHeader>
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                    <MapPin className="h-8 w-8 text-primary" />
+                  </div>
+                  <CardTitle className="font-headline mt-4 text-2xl">3. Reach the World</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Once approved, your itinerary is live on the app, ready for travelers to purchase and explore.</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+      
+      {/* Test Payments Section */}
+      <section className="w-full py-12 bg-muted/40">
+        <div className="container mx-auto px-4 text-center">
+            <h3 className="font-headline text-2xl font-bold">Test the Platform</h3>
+            <p className="text-muted-foreground mt-2 mb-6">Click a button to simulate purchasing an itinerary.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+                <Button asChild size="lg">
+                    <Link href="/pay?item_id=1">Test Pay for '7-Day Bali Escape' (ID: 1)</Link>
+                </Button>
+                 <Button asChild size="lg" variant="secondary">
+                    <Link href="/pay?item_id=2">Test Pay for 'Kyoto Cherry Blossom Tour' (ID: 2)</Link>
+                </Button>
+            </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="w-full py-20 md:py-28 bg-gradient-to-b from-background to-primary/5">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <h2 className="font-headline text-3xl font-bold md:text-4xl">Why Creators Love Us</h2>
+            <p className="mt-4 max-w-2xl mx-auto text-muted-foreground">
+              Hear from travel experts about their experience with our platform
+            </p>
+          </motion.div>
+          
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            variants={staggerContainer}
+            viewport={{ once: true }}
+            className="mt-16 grid gap-8 md:grid-cols-1 lg:grid-cols-2"
+          >
+            <motion.div variants={fadeIn}>
+              <Card className="border-l-4 border-accent shadow-lg hover:shadow-xl transition-shadow h-full">
+                <CardContent className="pt-6">
+                  <blockquote className="space-y-4">
+                    <p className="text-muted-foreground text-lg italic">"The platform makes it so easy to share my travel knowledge. I love how I can focus on creating great content while the tech side is handled."</p>
+                    <footer className="flex items-center space-x-4 pt-2">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src="https://placehold.co/100x100.png" data-ai-hint="female portrait" alt="Alexa T." />
+                        <AvatarFallback>AT</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold text-lg">Alexa T.</p>
+                        <p className="text-sm text-muted-foreground">Travel Blogger</p>
+                      </div>
+                    </footer>
+                  </blockquote>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            <motion.div variants={fadeIn}>
+              <Card className="border-l-4 border-accent shadow-lg hover:shadow-xl transition-shadow h-full">
+                <CardContent className="pt-6">
+                  <blockquote className="space-y-4">
+                    <p className="text-muted-foreground text-lg italic">"As a photographer, I appreciate how I can share the stories behind my images. It's a perfect complement to my visual work."</p>
+                    <footer className="flex items-center space-x-4 pt-2">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src="https://placehold.co/100x100.png" data-ai-hint="male portrait" alt="Mario E." />
+                        <AvatarFallback>ME</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold text-lg">Mario E.</p>
+                        <p className="text-sm text-muted-foreground">Adventure Photographer</p>
+                      </div>
+                    </footer>
+                  </blockquote>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="w-full py-20 md:py-28 bg-gradient-to-t from-primary/5 to-background">
+        <div className="container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto"
+          >
+            <h2 className="font-headline text-3xl font-bold md:text-4xl">Ready to Share Your Travel Expertise?</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Join our growing community of travel creators and start monetizing your knowledge today.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
+              <Button size="lg" className="rounded-full font-bold text-base group w-full sm:w-auto" asChild>
                 <Link href="/register">
-                  Sign Up for Free
+                  Get Started <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform"/>
                 </Link>
               </Button>
-            </motion.div>
-          </div>
-        </section>
-      </main>
+            </div>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -21,6 +21,7 @@ type VerificationStatus = 'not_submitted' | 'pending' | 'approved' | 'rejected';
 
 export interface Itinerary {
   id: string;
+  itineraryId: number;
   title: string;
   status: 'Published' | 'Draft' | 'Rejected';
   sales: number;
@@ -31,7 +32,7 @@ export interface Itinerary {
 
 interface Payout {
   id: string;
-  requestedAt: Timestamp; // Keep as any to handle Firestore Timestamp
+  requestedAt: Timestamp; 
   amount: number;
   status: string;
 }
@@ -204,7 +205,6 @@ function CreatorDashboard() {
     useEffect(() => {
       if (!user) return;
   
-      setLoading(true);
       const itinerariesQuery = query(collection(db, 'itineraries'), where('creatorId', '==', user.uid));
       const payoutsQuery = query(collection(db, 'payout_requests'), where('userId', '==', user.uid));
   
@@ -229,7 +229,6 @@ function CreatorDashboard() {
             ...doc.data(),
           })) as Payout[];
         
-        // Sort payouts by requestedAt date, descending
         const sortedPayouts = payoutsData.sort((a, b) => {
             const dateA = a.requestedAt?.toDate() || new Date(0);
             const dateB = b.requestedAt?.toDate() || new Date(0);
@@ -423,6 +422,7 @@ function CreatorDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[80px]">ID</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-center">Sales</TableHead>
@@ -433,6 +433,7 @@ function CreatorDashboard() {
                 <TableBody>
                   {itineraries.length > 0 ? itineraries.map((item) => (
                     <TableRow key={item.id}>
+                      <TableCell className="font-mono text-center">{item.itineraryId}</TableCell>
                       <TableCell className="font-medium">{item.title}</TableCell>
                       <TableCell><ItineraryStatusBadge status={item.status} /></TableCell>
                       <TableCell className="text-center">{item.sales || 0}</TableCell>
@@ -441,7 +442,7 @@ function CreatorDashboard() {
                     </TableRow>
                   )) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center h-24">No itineraries uploaded yet.</TableCell>
+                      <TableCell colSpan={6} className="text-center h-24">No itineraries uploaded yet.</TableCell>
                     </TableRow>
                   )}
                 </TableBody>

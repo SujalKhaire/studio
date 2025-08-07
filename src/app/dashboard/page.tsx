@@ -277,10 +277,6 @@ function CreatorDashboard() {
         return `₹${amount.toFixed(2)}`;
     }
     
-    const formatCurrencyNoFractions = (amount: number) => {
-        return `₹${amount.toFixed(0)}`;
-    }
-
     const userProfileImageUrl = user?.photoURL || `https://api.dicebear.com/8.x/lorelei/svg?seed=${user?.email}`;
 
   if (loading) {
@@ -447,8 +443,8 @@ function CreatorDashboard() {
                       <TableCell className="font-medium">{item.title}</TableCell>
                       <TableCell><ItineraryStatusBadge status={item.status} /></TableCell>
                       <TableCell className="text-center">{item.sales || 0}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(item.price || 0)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(item.earnings || 0)}</TableCell>
+                      <TableCell className="text-right">₹{(item.price || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{(item.earnings || 0).toFixed(2)}</TableCell>
                     </TableRow>
                   )) : (
                     <TableRow>

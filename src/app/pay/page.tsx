@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -74,36 +75,44 @@ function PayPageContent() {
     fetchItinerary();
   }, [itemId]);
 
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = async (paymentResponse: any) => {
     if (!itinerary) return;
 
+    // Redirect immediately after successful payment response from Razorpay.
+    router.push('/payment-success');
+
     try {
-        const itineraryRef = doc(db, 'itineraries', itinerary.id);
+      const itineraryRef = doc(db, 'itineraries', itinerary.id);
+      
+      await runTransaction(db, async (transaction) => {
+        const itineraryDoc = await transaction.get(itineraryRef);
+        if (!itineraryDoc.exists()) {
+          throw new Error("Itinerary document not found.");
+        }
+
+        const newSales = (itineraryDoc.data().sales || 0) + 1;
+        const newEarnings = (itineraryDoc.data().earnings || 0) + itineraryDoc.data().price;
         
-        await runTransaction(db, async (transaction) => {
-          const itineraryDoc = await transaction.get(itineraryRef);
-          if (!itineraryDoc.exists()) {
-            throw "Document does not exist!";
-          }
-  
-          const newSales = (itineraryDoc.data().sales || 0) + 1;
-          const newEarnings = (itineraryDoc.data().earnings || 0) + itineraryDoc.data().price;
-          
-          transaction.update(itineraryRef, { 
-            sales: newSales,
-            earnings: newEarnings 
-          });
+        transaction.update(itineraryRef, { 
+          sales: newSales,
+          earnings: newEarnings 
         });
-  
-        router.push('/payment-success');
-      } catch (e) {
-        console.error("Transaction failed: ", e);
-        toast({
-          variant: 'destructive',
-          title: "Database Update Failed",
-          description: "Your payment was successful, but we couldn't update your purchase. Please contact support."
-        });
-      }
+      });
+
+      toast({
+        title: "Purchase Recorded!",
+        description: "Your purchase has been successfully recorded in your account."
+      });
+
+    } catch (e: any) {
+      console.error("Transaction failed: ", e);
+      toast({
+        variant: 'destructive',
+        title: "Database Update Failed",
+        description: `Your payment was successful, but we couldn't update the itinerary details. Please contact support. Error: ${e.message}`,
+        duration: 10000,
+      });
+    }
   }
 
 
@@ -131,10 +140,9 @@ function PayPageContent() {
             name: "Ziravo",
             description: `Payment for ${itinerary.title}`,
             order_id: order.id,
-            handler: async (response: any) => {
-                // For this example, we'll assume payment is successful on handler callback.
-                // In a production app, you should verify the payment signature on your backend.
-                await handlePaymentSuccess();
+            handler: (response: any) => {
+                // The handler is called by Razorpay upon successful payment.
+                handlePaymentSuccess(response);
             },
             prefill: {
                 name: user.displayName || 'Ziravo User',
@@ -149,16 +157,27 @@ function PayPageContent() {
             }
         };
         const rzp = new window.Razorpay(options);
+
+        // Add a listener for payment failure
+        rzp.on('payment.failed', function (response: any) {
+            console.error('Razorpay payment failed:', response.error);
+            toast({
+                variant: 'destructive',
+                title: 'Payment Failed',
+                description: `Code: ${response.error.code}. ${response.error.description}`,
+            });
+            setProcessing(false);
+        });
+
         rzp.open();
 
     } catch(e: any) {
-        console.error("Payment failed", e);
+        console.error("Payment initiation failed", e);
         toast({
             variant: 'destructive',
-            title: 'Payment Failed',
+            title: 'Payment Error',
             description: e.message || "Could not process your payment. Please try again."
         })
-    } finally {
         setProcessing(false);
     }
   };

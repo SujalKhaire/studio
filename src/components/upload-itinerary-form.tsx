@@ -125,9 +125,9 @@ export function UploadItineraryForm({ userId, onUploadSuccess, open, onOpenChang
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price (USD)</FormLabel>
+                  <FormLabel>Price (INR)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="10" {...field} />
+                    <Input type="number" placeholder="500" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

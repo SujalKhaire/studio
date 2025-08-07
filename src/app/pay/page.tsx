@@ -35,7 +35,7 @@ function PayPageContent() {
 
       try {
         const itinerariesRef = collection(db, 'itineraries');
-        const q = query(itinerariesRef, where('itineraryId', '==', parseInt(itemId, 10)));
+        const q = query(itinerariesRef, where('id', '==', itemId));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
@@ -46,7 +46,7 @@ function PayPageContent() {
             id: querySnapshot.docs[0].id,
             title: docData.title,
             price: docData.price,
-            creatorId: docData.creatorId,
+            creatorId: docData.userId,
           });
         }
       } catch (err) {
@@ -93,7 +93,7 @@ function PayPageContent() {
                 <p className="text-sm text-muted-foreground">Digital Itinerary Guide</p>
               </div>
               <div className="text-4xl font-bold font-headline text-primary">
-                ${itinerary.price.toFixed(2)}
+                ₹{itinerary.price.toFixed(2)}
               </div>
               <Button onClick={handlePayment} className="w-full" size="lg">
                 <CreditCard className="mr-2 h-5 w-5" />

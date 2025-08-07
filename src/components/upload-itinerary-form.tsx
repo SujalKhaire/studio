@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { uploadItinerary } from '@/ai/flows/upload-itinerary';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileText } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useAuth } from '@/hooks/use-auth';
 
 const formSchema = z.object({
   title: z.string().min(5, {
@@ -37,13 +38,13 @@ const formSchema = z.object({
 type UploadItineraryFormValues = z.infer<typeof formSchema>;
 
 interface UploadItineraryFormProps {
-  userId: string;
-  onUploadSuccess?: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUploadSuccess?: () => void;
 }
 
-export function UploadItineraryForm({ userId, onUploadSuccess, open, onOpenChange }: UploadItineraryFormProps) {
+export function UploadItineraryForm({ open, onOpenChange, onUploadSuccess }: UploadItineraryFormProps) {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -57,10 +58,19 @@ export function UploadItineraryForm({ userId, onUploadSuccess, open, onOpenChang
   });
 
   async function onSubmit(data: UploadItineraryFormValues) {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'You must be logged in to upload an itinerary.',
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     const result = await uploadItinerary({
       ...data,
-      creatorId: userId,
+      creatorId: user.uid,
     });
     setIsSubmitting(false);
 
@@ -70,6 +80,7 @@ export function UploadItineraryForm({ userId, onUploadSuccess, open, onOpenChang
         description: 'Your itinerary has been uploaded successfully.',
       });
       form.reset();
+      onOpenChange(false);
       onUploadSuccess?.();
     } else {
       toast({
@@ -82,63 +93,70 @@ export function UploadItineraryForm({ userId, onUploadSuccess, open, onOpenChang
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Upload New Itinerary</DialogTitle>
+          <DialogTitle className="font-headline text-2xl flex items-center gap-2">
+            <FileText className="h-6 w-6" /> Add New Itinerary
+          </DialogTitle>
           <DialogDescription>
-            Fill in the details to add a new itinerary to your profile.
+            Fill in the details below to add a new itinerary to the marketplace.
           </DialogDescription>
         </DialogHeader>
+        <div className="py-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Itinerary Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 7 Days in Bali" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="publicLink"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Public Link</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://..." {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    A public link to your itinerary (e.g., Google Doc, Notion page).
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price (INR)</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="500" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" disabled={isSubmitting} className="w-full">
+            <fieldset disabled={isSubmitting} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Itinerary Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., 7-Day Bali Escape" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="publicLink"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Itinerary Link</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://docs.google.com/document/d/..." {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Provide a public, shareable link (e.g., Google Docs, Notion).
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price (INR)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="1" placeholder="1599" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </fieldset>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Upload Itinerary
+              {isSubmitting ? 'Submitting...' : 'Submit Itinerary'}
             </Button>
           </form>
         </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

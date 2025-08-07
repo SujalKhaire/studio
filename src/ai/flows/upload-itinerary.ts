@@ -10,15 +10,17 @@ import {
 import {db} from '@/lib/firebase';
 import {ai} from '@/ai/genkit';
 
+const UploadItineraryInputSchema = z.object({
+  title: z.string(),
+  publicLink: z.string().url(),
+  price: z.number().positive(),
+  creatorId: z.string(),
+});
+
 const uploadItineraryFlow = ai.defineFlow(
   {
     name: 'uploadItinerary',
-    inputSchema: z.object({
-      title: z.string(),
-      publicLink: z.string().url(),
-      price: z.number().positive(),
-      creatorId: z.string(),
-    }),
+    inputSchema: UploadItineraryInputSchema,
     outputSchema: z.object({
       success: z.boolean(),
       message: z.string(),

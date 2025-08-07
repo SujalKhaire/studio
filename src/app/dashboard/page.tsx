@@ -289,7 +289,7 @@ function CreatorDashboard() {
 
   return (
     <>
-    { user && <UploadItineraryForm open={isUploadOpen} onOpenChange={setIsUploadOpen} userId={user.uid} onUploadSuccess={() => setIsUploadOpen(false)} /> }
+    <UploadItineraryForm open={isUploadOpen} onOpenChange={setIsUploadOpen} onUploadSuccess={() => setIsUploadOpen(false)} />
     <div className="flex flex-1 flex-col gap-8 bg-muted/20 p-4 sm:p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-3xl font-headline font-bold">Creator Dashboard</h1>

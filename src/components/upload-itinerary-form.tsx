@@ -18,6 +18,13 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { uploadItinerary } from '@/ai/flows/upload-itinerary';
 import { Loader2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const formSchema = z.object({
   title: z.string().min(5, {
@@ -32,9 +39,11 @@ type UploadItineraryFormValues = z.infer<typeof formSchema>;
 interface UploadItineraryFormProps {
   userId: string;
   onUploadSuccess?: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function UploadItineraryForm({ userId, onUploadSuccess }: UploadItineraryFormProps) {
+export function UploadItineraryForm({ userId, onUploadSuccess, open, onOpenChange }: UploadItineraryFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -72,55 +81,65 @@ export function UploadItineraryForm({ userId, onUploadSuccess }: UploadItinerary
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Itinerary Title</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., 7 Days in Bali" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="publicLink"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Public Link</FormLabel>
-              <FormControl>
-                <Input placeholder="https://..." {...field} />
-              </FormControl>
-              <FormDescription>
-                A public link to your itinerary (e.g., Google Doc, Notion page).
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price (USD)</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="10" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Upload Itinerary
-        </Button>
-      </form>
-    </Form>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Upload New Itinerary</DialogTitle>
+          <DialogDescription>
+            Fill in the details to add a new itinerary to your profile.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Itinerary Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 7 Days in Bali" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="publicLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Public Link</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://..." {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    A public link to your itinerary (e.g., Google Doc, Notion page).
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price (USD)</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" disabled={isSubmitting} className="w-full">
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Upload Itinerary
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

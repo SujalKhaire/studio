@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -28,7 +27,7 @@ export interface Itinerary {
   sales: number;
   price: number;
   earnings: number;
-  createdAt: Timestamp | string;
+  createdAt: Timestamp;
 }
 
 interface Payout {
@@ -147,8 +146,8 @@ function InfluencerApplicationRejected() {
 const ItineraryStatusBadge = ({ status }: { status: 'Published' | 'Draft' | 'Rejected' }) => {
   const statusConfig = {
     Published: { variant: 'default', icon: <CheckCircle className="h-3.5 w-3.5" />, text: 'Published', className: 'bg-green-600' },
-    Draft: { variant: 'secondary', icon: <Clock className="h-3.5 w-3.5" />, text: 'Draft' },
-    Rejected: { variant: 'destructive', icon: <XCircle className="h-3.5 w-3.5" />, text: 'Rejected' },
+    Draft: { variant: 'secondary', icon: <Clock className="h-3.5 w-3.5" />, text: 'Draft', className: '' },
+    Rejected: { variant: 'destructive', icon: <XCircle className="h-3.5 w-3.5" />, text: 'Rejected', className: '' },
   } as const;
   const config = statusConfig[status] || statusConfig.Draft;
 
@@ -163,9 +162,9 @@ const ItineraryStatusBadge = ({ status }: { status: 'Published' | 'Draft' | 'Rej
 const VerifiedStatusBadge = ({ status }: { status: VerificationStatus }) => {
     const statusConfig = {
       approved: { variant: 'default', icon: <Verified className="h-4 w-4" />, text: 'Approved', className: 'bg-green-600' },
-      pending: { variant: 'secondary', icon: <Hourglass className="h-4 w-4" />, text: 'Pending' },
-      rejected: { variant: 'destructive', icon: <XCircle className="h-4 w-4" />, text: 'Rejected' },
-      not_submitted: { variant: 'outline', icon: <User className="h-4 w-4" />, text: 'Not Submitted' },
+      pending: { variant: 'secondary', icon: <Hourglass className="h-4 w-4" />, text: 'Pending', className: '' },
+      rejected: { variant: 'destructive', icon: <XCircle className="h-4 w-4" />, text: 'Rejected', className: '' },
+      not_submitted: { variant: 'outline', icon: <User className="h-4 w-4" />, text: 'Not Submitted', className: '' },
     } as const;
     const config = statusConfig[status];
   
@@ -254,7 +253,7 @@ function CreatorDashboard() {
       totalItineraries: itineraries.length,
       totalSales: itineraries.reduce((sum, item) => sum + (item.sales || 0), 0),
       lifetimeEarnings: itineraries.reduce((sum, item) => sum + (item.earnings || 0), 0),
-      totalPaidOut: payouts.filter(p => p.status.toLowerCase() === 'processed').reduce((sum, item) => sum + (item.amount || 0), 0),
+      totalPaidOut: payouts.filter(p => p.status.toLowerCase() === 'processed').reduce((sum, item) => sum + item.amount, 0),
       get walletBalance() {
         return this.lifetimeEarnings - this.totalPaidOut;
       },
@@ -263,26 +262,24 @@ function CreatorDashboard() {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         
         return itineraries.reduce((sum, item) => {
-            if (item.createdAt) {
-              const itemDate = typeof item.createdAt === 'string' 
-                ? new Date(item.createdAt) 
-                : item.createdAt.toDate();
-              if (itemDate >= startOfMonth && itemDate <= now) {
-                return sum + (item.earnings || 0);
-              }
+          if (item.createdAt) {
+            const itemDate = item.createdAt.toDate();
+            if (itemDate >= startOfMonth && itemDate <= now) {
+              return sum + (item.earnings || 0);
             }
-            return sum;
+          }
+          return sum;
         }, 0);
       },
     };
-
+    
     const formatCurrency = (amount: number) => {
         return (amount || 0).toLocaleString('en-IN', {
             style: 'currency',
             currency: 'INR',
         });
     }
-    
+
     const userProfileImageUrl = user?.photoURL || `https://api.dicebear.com/8.x/lorelei/svg?seed=${user?.email}`;
 
   if (loading) {
@@ -298,7 +295,7 @@ function CreatorDashboard() {
     <UploadItineraryForm open={isUploadOpen} onOpenChange={setIsUploadOpen} />
     <div className="flex flex-1 flex-col gap-8 bg-muted/20 p-4 sm:p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-headline text-3xl font-bold">Creator Dashboard</h1>
+        <h1 className="text-3xl font-headline font-bold">Creator Dashboard</h1>
         <Button onClick={() => setIsUploadOpen(true)}>
           <FileText className="mr-2 h-4 w-4" />
           Add Itinerary
@@ -449,8 +446,8 @@ function CreatorDashboard() {
                       <TableCell className="font-medium">{item.title}</TableCell>
                       <TableCell><ItineraryStatusBadge status={item.status} /></TableCell>
                       <TableCell className="text-center">{item.sales || 0}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(item.earnings)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(item.price || 0)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(item.earnings || 0)}</TableCell>
                     </TableRow>
                   )) : (
                     <TableRow>

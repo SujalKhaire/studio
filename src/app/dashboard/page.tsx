@@ -277,9 +277,9 @@ function CreatorDashboard() {
     };
 
     const formatCurrency = (amount: number) => {
-        return (amount || 0).toLocaleString('en-US', {
+        return (amount || 0).toLocaleString('en-IN', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'INR',
         });
     }
     

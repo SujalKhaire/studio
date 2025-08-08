@@ -115,7 +115,7 @@ function PayPageContent() {
     try {
       const order = await createRazorpayOrder({
         amount: itinerary.price * 100,
-        currency: 'USD',
+        currency: 'INR',
       });
 
       if (!order?.id) {
@@ -168,9 +168,9 @@ function PayPageContent() {
   };
 
   const formatCurrency = (amount: number) => {
-    return (amount || 0).toLocaleString('en-US', {
+    return (amount || 0).toLocaleString('en-IN', {
         style: 'currency',
-        currency: 'USD',
+        currency: 'INR',
     });
   }
 

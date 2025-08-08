@@ -253,7 +253,7 @@ function CreatorDashboard() {
       totalItineraries: itineraries.length,
       totalSales: itineraries.reduce((sum, item) => sum + (item.sales || 0), 0),
       lifetimeEarnings: itineraries.reduce((sum, item) => sum + (item.earnings || 0), 0),
-      totalPaidOut: payouts.filter(p => p.status.toLowerCase() === 'processed').reduce((sum, item) => sum + item.amount, 0),
+      totalPaidOut: payouts.filter(p => p.status.toLowerCase() === 'processed').reduce((sum, item) => sum + (item.amount || 0), 0),
       get walletBalance() {
         return this.lifetimeEarnings - this.totalPaidOut;
       },
@@ -276,7 +276,7 @@ function CreatorDashboard() {
     };
 
     const formatCurrency = (amount: number) => {
-        return `₹${amount.toFixed(2)}`;
+        return `₹${(amount || 0).toFixed(2)}`;
     }
     
     const userProfileImageUrl = user?.photoURL || `https://api.dicebear.com/8.x/lorelei/svg?seed=${user?.email}`;
@@ -353,7 +353,7 @@ function CreatorDashboard() {
                                 <TableRow key={payout.id}>
                                     <TableCell>{payout.requestedAt.toDate().toLocaleDateString()}</TableCell>
                                     <TableCell><PayoutStatusBadge status={payout.status} /></TableCell>
-                                    <TableCell className="text-right font-medium">{formatCurrency(payout.amount)}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(payout.amount || 0)}</TableCell>
                                 </TableRow>
                             )) : (
                                 <TableRow>

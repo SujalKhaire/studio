@@ -354,7 +354,7 @@ function CreatorDashboard() {
                                 <TableRow key={payout.id}>
                                     <TableCell>{payout.requestedAt.toDate().toLocaleDateString()}</TableCell>
                                     <TableCell><PayoutStatusBadge status={payout.status} /></TableCell>
-                                    <TableCell className="text-right font-medium">{formatCurrency(payout.amount)}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(payout.amount || 0)}</TableCell>
                                 </TableRow>
                             )) : (
                                 <TableRow>

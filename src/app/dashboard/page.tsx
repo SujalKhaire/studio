@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -353,7 +354,7 @@ function CreatorDashboard() {
                                 <TableRow key={payout.id}>
                                     <TableCell>{payout.requestedAt.toDate().toLocaleDateString()}</TableCell>
                                     <TableCell><PayoutStatusBadge status={payout.status} /></TableCell>
-                                    <TableCell className="text-right font-medium">{formatCurrency(payout.amount || 0)}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(payout.amount)}</TableCell>
                                 </TableRow>
                             )) : (
                                 <TableRow>
@@ -445,8 +446,8 @@ function CreatorDashboard() {
                       <TableCell className="font-medium">{item.title}</TableCell>
                       <TableCell><ItineraryStatusBadge status={item.status} /></TableCell>
                       <TableCell className="text-center">{item.sales || 0}</TableCell>
-                      <TableCell className="text-right">₹{(item.price || 0).toFixed(2)}</TableCell>
-                      <TableCell className="text-right">₹{(item.earnings || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(item.earnings)}</TableCell>
                     </TableRow>
                   )) : (
                     <TableRow>

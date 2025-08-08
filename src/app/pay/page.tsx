@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -12,6 +13,7 @@ import Script from 'next/script';
 import { databases } from '@/lib/appwrite';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { savePurchase } from '@/ai/flows/save-purchase';
 
 interface Itinerary {
   id: string;
@@ -24,9 +26,6 @@ declare global {
     Razorpay: any;
   }
 }
-
-const DATABASE_ID = '685cf1920027a207852a';
-const COLLECTION_ID_PURCHASES = '685eba5a000243ee4df0';
 
 function PayPageContent() {
   const searchParams = useSearchParams();
@@ -78,23 +77,11 @@ function PayPageContent() {
     if (!itinerary || !userId) return;
 
     try {
-      const numericItemId = parseInt(itinerary.id);
-
-      if (isNaN(numericItemId)) {
-        throw new Error('Invalid itemId: must be a number for Appwrite.');
-      }
-
-      await databases.createDocument(
-        DATABASE_ID,
-        COLLECTION_ID_PURCHASES,
-        'unique()',
-        {
-          itemId: numericItemId,
-          uid: userId,
-          paymentid: paymentResponse.razorpay_payment_id,
-        }
-      );
-
+      await savePurchase({
+        itemId: itinerary.id,
+        userId: userId,
+        paymentId: paymentResponse.razorpay_payment_id
+      });
       console.log("✅ Stored payment success in Appwrite.");
     } catch (error) {
       console.error('Appwrite store error:', error);
@@ -104,11 +91,12 @@ function PayPageContent() {
         description: (error as Error).message,
       });
     }
-     const redirectUrl = "yourapp://payment_success?uid=${userId}&item_id=${itinerary.id}&payment_id=${paymentResponse.razorpay_payment_id}";
+
+    const redirectUrl = `yourapp://payment_success?uid=${userId}&item_id=${itinerary.id}&payment_id=${paymentResponse.razorpay_payment_id}`;
     window.location.href = redirectUrl;
 
     setTimeout(() => {
-      router.push("/payment-success?item_id=${itinerary.id}");
+      router.push(`/payment-success?item_id=${itinerary.id}`);
     }, 2000);
   };
 
@@ -179,6 +167,13 @@ function PayPageContent() {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return (amount || 0).toLocaleString('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+    });
+  }
+
   return (
     <>
       <Script id="razorpay-checkout-js" src="https://checkout.razorpay.com/v1/checkout.js" />
@@ -209,7 +204,7 @@ function PayPageContent() {
                   <p className="text-sm text-muted-foreground">Digital Itinerary Guide</p>
                 </div>
                 <div className="text-4xl font-bold font-headline text-primary">
-                  ₹{itinerary.price.toFixed(2)}
+                  {formatCurrency(itinerary.price)}
                 </div>
                 <Button onClick={handlePayment} className="w-full" size="lg" disabled={processing || !userId}>
                   {processing ? (

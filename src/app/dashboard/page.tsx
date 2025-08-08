@@ -277,7 +277,10 @@ function CreatorDashboard() {
     };
 
     const formatCurrency = (amount: number) => {
-        return `₹${(amount || 0).toFixed(2)}`;
+        return (amount || 0).toLocaleString('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+        });
     }
     
     const userProfileImageUrl = user?.photoURL || `https://api.dicebear.com/8.x/lorelei/svg?seed=${user?.email}`;
@@ -295,7 +298,7 @@ function CreatorDashboard() {
     <UploadItineraryForm open={isUploadOpen} onOpenChange={setIsUploadOpen} />
     <div className="flex flex-1 flex-col gap-8 bg-muted/20 p-4 sm:p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-headline font-bold">Creator Dashboard</h1>
+        <h1 className="font-headline text-3xl font-bold">Creator Dashboard</h1>
         <Button onClick={() => setIsUploadOpen(true)}>
           <FileText className="mr-2 h-4 w-4" />
           Add Itinerary

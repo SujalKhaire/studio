@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { Globe } from 'lucide-react';
+import Image from 'next/image';
 
 export default function SiteHeader() {
   const { user } = useAuth();
@@ -21,7 +21,7 @@ export default function SiteHeader() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center mx-auto px-4 md:px-6">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Globe className="h-6 w-6 text-primary" />
+          <Image src="https://i.postimg.cc/3NX4VKzQ/Chat-GPT-Image-Aug-8-2025-02-22-48-PM.png" alt="Ziravo Logo" width={32} height={32} className="h-8 w-8" />
           <span className="font-bold font-headline text-lg">Ziravo</span>
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-4">
